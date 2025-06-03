@@ -1054,7 +1054,7 @@
 
         function addPreference() {
             const p = parseInt(document.getElementById("prefPlayer").value);
-            const selectedType = document.getElementById("prefType").value; // "positiv" oder "negativ"
+            const selectedType = document.getElementById("prefType").value; 
             const tRaw = document.getElementById("prefTarget").value;
 
             const convertedTypePlayer = selectedType === "positiv" ? "with" : "notwith";
@@ -1128,7 +1128,6 @@
 
                     for (const player of team) {
                         if (useTeamPrefs) {
-                            // Suche eine aktive Team-Präferenz für den Spieler
                             const tpref = teamPrefs.find(p => p.active && p.player === player.index);
                             if (tpref) {
                                 const isTargetTeam = Number(teamIndex) === tpref.teamIndex;
@@ -1733,7 +1732,6 @@
                 }
             }
 
-            // Update der Runde
             const newTeams = teamIndexes.map(index => ({
                 name: teamNames[index],
                 color: teamColors[index],
@@ -1744,7 +1742,6 @@
 
             window.currentRounds[roundIndex] = newTeams;
 
-            // UI aktualisieren
             const resultContainer = document.getElementById("shuffleResults");
             const roundWrappers = resultContainer.querySelectorAll(".round-container");
             const wrapper = roundWrappers[roundIndex];
