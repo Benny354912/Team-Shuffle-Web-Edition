@@ -2,7 +2,7 @@
 
 # Team Shuffler
 
-Dierser Team Shuffler wurde für den eigenen gebrauch entwickelt. FÜr alle die etwas mit diesem Shuffler anfangen können, dürfen diesen Natürlich gerne nutzen! Eine kleine Vorschau findest du unten wieder. MIT License gilt!
+Dierser Team Shuffler wurde für den eigenen gebrauch entwickelt. Für alle die etwas mit diesem Shuffler anfangen können, dürfen diesen Natürlich gerne nutzen! Eine kleine Vorschau und Demo findest du hier. MIT License gilt!
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)]()
 
