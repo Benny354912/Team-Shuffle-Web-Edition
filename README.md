@@ -26,10 +26,11 @@ Dierser Team Shuffler wurde für den eigenen gebrauch entwickelt. FÜr alle die 
 
 ## Screenshots / Bilder
 
-![App Screenshot](https://litter.catbox.moe/hjozqa.png)
-![App Screenshot](https://litter.catbox.moe/f9020u.png)
-![App Screenshot](https://litter.catbox.moe/hu45n2.png)
-![App Screenshot](https://litter.catbox.moe/gce20b.png)
+![App Screenshot](https://camo.githubusercontent.com/0f2face56e0c6f26d04910206c929e9500f3fad8df705bed891e9ebc279f9170/68747470733a2f2f6c69747465722e636174626f782e6d6f652f686a6f7a71612e706e67)
+![App Screenshot](https://camo.githubusercontent.com/24c4f33963abc9fe0394df4a814f155d4dcfb2a2fab80006205feb684ed7743f/68747470733a2f2f6c69747465722e636174626f782e6d6f652f6639303230752e706e67)
+![App Screenshot](https://camo.githubusercontent.com/9d164bac75e75fa82c7bd26854b01134184b5f8da1b3da7e6075332cfecc084f/68747470733a2f2f6c69747465722e636174626f782e6d6f652f687534356e322e706e67)
+![App Screenshot](https://camo.githubusercontent.com/d9b2f83fb657ed6532a8a356190746d00bd964a42f9ca6ac50d1ac6ccbd18f72/68747470733a2f2f6c69747465722e636174626f782e6d6f652f6763653230622e706e67)
+
 ## Installation
 
 Einfach die webversion.html herunterladen und im Browser öffnen.
