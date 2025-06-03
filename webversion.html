@@ -399,14 +399,16 @@
             max-width: 100%
         }
 
-        .preference-box.positiv {
+        .preference-box.with,
+        .preference-box.in {
             background: #d1fae5;
-            color: #065f46
+            color: #065f46;
         }
 
-        .preference-box.negativ {
+        .preference-box.notwith,
+        .preference-box.notin {
             background: #fee2e2;
-            color: #991b1b
+            color: #991b1b;
         }
 
         .preference-box.valid {
@@ -976,12 +978,15 @@
 
         function addPreference() {
             const p = parseInt(document.getElementById("prefPlayer").value);
-            const type = document.getElementById("prefType").value;
+            const selectedType = document.getElementById("prefType").value; // "positiv" oder "negativ"
             const tRaw = document.getElementById("prefTarget").value;
+
+            const convertedTypePlayer = selectedType === "positiv" ? "with" : "notwith";
+            const convertedTypeTeam = selectedType === "positiv" ? "in" : "notin";
 
             if (tRaw.startsWith("team-")) {
                 const teamIndex = parseInt(tRaw.split("-")[1]);
-                teamPrefs.push({ player: p, teamIndex, type, active: true });
+                teamPrefs.push({ player: p, teamIndex, type: convertedTypeTeam, active: true });
             } else {
                 const target = parseInt(tRaw);
                 if (p === target) {
@@ -989,13 +994,13 @@
                     return;
                 }
                 const alreadyExists = playerPrefs.some(pref =>
-                    pref.player === p && pref.target === target && pref.type === type
+                    pref.player === p && pref.target === target && pref.type === convertedTypePlayer
                 );
                 if (alreadyExists) {
                     alert("Diese Präferenz existiert bereits.");
                     return;
                 }
-                playerPrefs.push({ player: p, target, type, active: true });
+                playerPrefs.push({ player: p, target, type: convertedTypePlayer, active: true });
             }
             renderPreferencesList();
         }
@@ -1014,6 +1019,7 @@
             const useTeamPrefs = document.getElementById("useTeamPrefs").checked;
             const roundCount = parseInt(document.getElementById("roundCount")?.value || "1");
             const MAX_ATTEMPTS = 50000;
+            const MAX_RETRIES = 10;
 
             const weights = {
                 1: usePoolWeights ? (parseInt(document.getElementById("weightP1").value) || 5) : 0,
@@ -1049,16 +1055,12 @@
                             // Suche eine aktive Team-Präferenz für den Spieler
                             const tpref = teamPrefs.find(p => p.active && p.player === player.index);
                             if (tpref) {
-                                const target = tpref.target; // Ziel kann Spieler- oder Teamindex sein
-                                const isTargetPlayer = playerIndices.includes(target);
-                                const isTargetTeam = Number(teamIndex) === target;  // teamIndex aus entries ist string, target vermutlich number
+                                const isTargetTeam = Number(teamIndex) === tpref.teamIndex;
 
-                                if (tpref.type === "positiv") {
-                                    // Präferenz soll erfüllt sein: Ziel muss im Team sein (Spieler) oder Team muss Zielteam sein
-                                    if (!(isTargetPlayer || isTargetTeam)) return false;
-                                } else if (tpref.type === "negativ") {
-                                    // Präferenz soll nicht erfüllt sein: Ziel darf nicht im Team sein (Spieler) und Team darf nicht Zielteam sein
-                                    if (isTargetPlayer || isTargetTeam) return false;
+                                if (tpref.type === "in") {
+                                    if (!isTargetTeam) return false;
+                                } else if (tpref.type === "notin") {
+                                    if (isTargetTeam) return false;
                                 }
                             }
                         }
@@ -1131,8 +1133,16 @@
                 const baseMap = emptyTeamMap();
                 await tryAssignments(activePlayers, baseMap);
 
+                let retryCount = 1;
+                while (validSolutions.length === 0 && retryCount <= MAX_RETRIES) {
+                    console.warn(`Runde ${round + 1}: Kein Ergebnis nach Versuch #${retryCount}, erneut versuchen…`);
+                    attempts = 0;
+                    await tryAssignments(activePlayers, emptyTeamMap());
+                    retryCount++;
+                }
+
                 if (validSolutions.length === 0) {
-                    alert(`Runde ${round + 1}: Keine gültige Lösung gefunden.`);
+                    alert(`Runde ${round + 1}: Keine gültige Lösung gefunden nach ${MAX_RETRIES} weiteren Versuchen.`);
                     continue;
                 }
 
@@ -1212,6 +1222,7 @@
             }
             shuffleHistoryIndex = shuffleHistory.length - 1;
             updateHistoryButtons();
+            validatePreferences(window.currentRounds[0] || []);
 
             shuffleBtn.disabled = false;
             shuffleBtn.textContent = "Shuffle";
