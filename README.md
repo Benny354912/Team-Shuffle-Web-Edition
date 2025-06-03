@@ -2,10 +2,13 @@
 
 # Team Shuffler
 
-Dierser Team Shuffler wurde für den eigenen gebrauch entwickelt. FÜr alle die etwas mit diesem Shuffler anfangen können, dürfen diesen Natürlich gerne nutzen! Eine kleine Vorschau findest du unten wieder. 
+Dierser Team Shuffler wurde für den eigenen gebrauch entwickelt. FÜr alle die etwas mit diesem Shuffler anfangen können, dürfen diesen Natürlich gerne nutzen! Eine kleine Vorschau findest du unten wieder. MIT License gilt!
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)]()
 
+## Live Demo
+
+Hier geht es zur Live [Demo](http://htmlpreview.github.io/?https://raw.githubusercontent.com/Benny354912/Team-Shuffle-Web-Edition/refs/heads/main/webversion.html?token=GHSAT0AAAAAADEXBLH5V3WSIHZIJN5M36PM2B67HPA).
 
 ## Features
 
