@@ -1,0 +1,1398 @@
+<!-- 
+  Dieser Code ist unter der MIT-Lizenz lizenziert.
+  Weitere Informationen finden Sie in der beigefügten LICENSE-Datei.
+  © 2025 Benny354912
+-->
+
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ProShuffler Web – Präferenzen</title>
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --text: #1f2937;
+            --card: #ffffff;
+            --border: #e5e7eb;
+            --primary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --muted: #9ca3af;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+            --pool-1: #f87171;
+            --pool-2: #34d399;
+            --pool-3: #60a5fa;
+            --pool-4: #a78bfa;
+        }
+
+        body.dark {
+            --bg: #1f2937;
+            --text: #f9fafb;
+            --card: #374151;
+            --border: #4b5563;
+            --primary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --muted: #9ca3af;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+            --pool-1: #dc2626;
+            --pool-2: #059669;
+            --pool-3: #2563eb;
+            --pool-4: #7c3aed;
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 2rem;
+            font-family: "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        h1,
+        h2 {
+            margin: 0 0 1rem;
+            color: var(--primary);
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            flex: 1 1 320px;
+            max-width: 500px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        button {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.6rem;
+            border: 1px solid var(--border);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        .player {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            background: #f3f4f6;
+            transition: background 0.2s ease;
+        }
+
+        .player:hover {
+            background: #e5e7eb;
+        }
+
+        .player::before {
+            content: "";
+            width: 6px;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            border-radius: 5px 0 0 5px;
+        }
+
+        .pool-1::before {
+            background: var(--pool-1);
+        }
+
+        .pool-2::before {
+            background: var(--pool-2);
+        }
+
+        .pool-3::before {
+            background: var(--pool-3);
+        }
+
+        .pool-4::before {
+            background: var(--pool-4);
+        }
+
+        .inactive {
+            background: #e5e7eb;
+            color: #6b7280;
+            text-decoration: line-through;
+        }
+
+        .teams-box {
+            flex: 1 1 100%;
+        }
+
+        .team {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.75rem;
+            border-left: 5px solid var(--primary);
+            background: var(--card);
+            color: var(--text);
+            box-shadow: var(--shadow);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .team-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 1.2rem;
+        }
+
+        li {
+            margin-bottom: 0.3rem;
+        }
+
+        .preference-tag {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            background: #e0e7ff;
+            color: #1e3a8a;
+            border-radius: 0.5rem;
+            margin: 0.3rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .toggle-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toggle-group label {
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .toggle-group input {
+            margin-right: 0.5rem;
+        }
+
+        #diceResult {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+
+        .teams-top-container {
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .teams-grid .team {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border-left: 5px solid var(--primary);
+        }
+
+        .team-toggle {
+            padding: 0.7rem 1rem;
+            border-radius: 0.5rem;
+            color: #1f2937;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .team-toggle.inactive {
+            background: #e5e7eb !important;
+            color: #6b7280;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .team-toggle+.team-toggle.inactive {
+            margin-top: 1rem;
+            border-top: 1px dashed #ccc;
+            padding-top: 1rem;
+        }
+
+        #teamsConfig {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .team-toggle {
+            flex: 1 1 calc(50% - 1rem);
+            padding: 0.7rem 1rem;
+            border-radius: 0.5rem;
+            color: #1f2937;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .team-toggle.inactive {
+            background: #e5e7eb !important;
+            color: #6b7280;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .pool-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .pool-grid label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        #playersContainer {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .player {
+            min-width: 0;
+            word-break: break-word;
+        }
+
+        .player-input-row {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1rem;
+        }
+
+        .player-input-row input[type="text"] {
+            border-radius: 0.6rem 0 0 0.6rem;
+            border-right: none;
+            flex: 2;
+        }
+
+        .player-input-row select {
+            border-radius: 0 0.6rem 0.6rem 0;
+            border-left: none;
+            flex: 1;
+        }
+
+        .team ul {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            /* Maximal 2 Spalten */
+            gap: 0.3rem;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        @media (max-width: 500px) {
+            .team ul {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        #shuffleButton.blue {
+            background-color: #007bff;
+            /* Blau */
+        }
+
+        #shuffleButton.green {
+            background-color: #28a745;
+            /* Grün */
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 5px;
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+
+        #shuffleButton.blue .progress-bar {
+            background-color: #28a745;
+            /* grüner Balken, wenn Button blau */
+        }
+
+        #shuffleButton.green .progress-bar {
+            background-color: #007bff;
+            /* blauer Balken, wenn Button grün */
+        }
+
+        #preferencesList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+
+        .preference-box {
+            display: inline-block;
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.5rem;
+            background: #dbeafe;
+            color: #1e3a8a;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .preference-box.inactive {
+            background: #e5e7eb;
+            color: #6b7280;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .preference-box:hover {
+            filter: brightness(1.1);
+        }
+
+        .preference-box::after {
+            font-size: 0.8rem;
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        #playerPreferencesList,
+        #teamPreferencesList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+
+        .preference-box {
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            user-select: none;
+            border-left: 6px solid transparent;
+            transition: all 0.2s ease;
+            max-width: 100%;
+        }
+
+        .preference-box.with {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .preference-box.notwith {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .preference-box.in {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .preference-box.notin {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .preference-box.inactive {
+            background: #e5e7eb !important;
+            color: #6b7280 !important;
+            text-decoration: line-through;
+            opacity: 0.6;
+            border-left: none !important;
+        }
+
+        .preference-box.valid {
+            border-left: 6px solid #10b981;
+        }
+
+        .preference-box.invalid {
+            border-left: 6px solid #ef4444;
+        }
+
+        button[title] {
+            position: relative;
+        }
+
+        button[title]:hover {
+            cursor: pointer;
+        }
+
+        .player {
+            background: #f3f4f6;
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark .player {
+            background: #4b5563;
+            color: #f9fafb;
+        }
+
+        .player:hover {
+            background: #e5e7eb;
+        }
+
+        body.dark .player:hover {
+            background: #6b7280;
+        }
+
+        #darkModeToggle {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            font-size: 1.2rem;
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        #darkModeToggle:hover {
+            transform: scale(1.1);
+        }
+
+        #historyControls {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            z-index: 9999;
+            display: flex;
+            gap: 0;
+        }
+
+        #historyControls button {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            font-size: 1.2rem;
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+            opacity: 1;
+            border-radius: 0;
+        }
+
+        #historyControls button:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        #historyControls button:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            border-left: none;
+        }
+
+        #historyControls button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .round-container h2 {
+            margin-bottom: 1rem;
+        }
+
+        .round-container {
+            width: 100%;
+            margin-bottom: 0rem;
+            overflow-x: auto;
+        }
+
+        .round-container h2 {
+            margin-bottom: 1rem;
+        }
+
+        .teams-grid {
+            display: flex;
+            flex-wrap: nowrap;
+            /* ❗ keine zweite Zeile */
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        /* Optional: Scrollbar optisch verbessern */
+        .teams-grid::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .teams-grid::-webkit-scrollbar-thumb {
+            background: var(--muted);
+            border-radius: 4px;
+        }
+
+        /* Team-Karten feste Breite */
+        .team {
+            flex: 0 0 260px;
+            /* oder 280px, 300px – je nach Geschmack */
+            max-width: 260px;
+        }
+
+        #shuffleResults {
+            display: block;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="teams-top-container">
+        <div class="teams-grid" id="shuffleResults"></div>
+    </div>
+    <button id="shuffleButton" onclick="shuffleTeams()">
+        Shuffle
+    </button>
+    <div class="container">
+        <div class="box">
+            <h2>Spieler</h2>
+
+            <div id="playersContainer"></div>
+        </div>
+
+        <div class="box">
+            <h2>Spieler Hinzufügen</h2>
+            <div class="player-input-row">
+                <input type="text" id="newPlayerName" placeholder="Name" />
+                <select id="newPlayerPool">
+                    <option value="1">P1</option>
+                    <option value="2">P2</option>
+                    <option value="3">P3</option>
+                    <option value="4">P4</option>
+                </select>
+            </div>
+            <button onclick="addPlayer()">Hinzufügen</button>
+            <h2>Pool-Gewichtung</h2>
+            <div class="pool-grid">
+                <label><span>P1:</span> <input type="number" id="weightP1" value="5" /></label>
+                <label><span>P3:</span> <input type="number" id="weightP3" value="2" /></label>
+                <label><span>P2:</span> <input type="number" id="weightP2" value="3" /></label>
+                <label><span>P4:</span> <input type="number" id="weightP4" value="1" /></label>
+            </div>
+            <h2>Präferenzen</h2>
+            <div>
+                <label><input type="checkbox" id="usePoolWeights" checked> Pool-Gewichtung berücksichtigen</label><br>
+                <label><input type="checkbox" id="usePlayerPrefs" checked> Spieler-Präferenzen
+                    berücksichtigen</label><br>
+                <label><input type="checkbox" id="useTeamPrefs" checked> Team-Präferenzen berücksichtigen</label>
+            </div>
+            <label for="roundCount">Anzahl Runden:</label>
+            <input type="number" id="roundCount" min="1" value="1" />
+        </div>
+
+        <div class="box">
+            <h2>Teams</h2>
+            <div id="teamsConfig"></div>
+            <h2>Zufallswürfel</h2>
+            <select id="diceType">
+                <option value="2">Münze (D2)</option>
+                <option value="6">Würfel D6</option>
+                <option value="12">Würfel D12</option>
+                <option value="20">Würfel D20</option>
+                <option value="100">Würfel D100</option>
+            </select>
+            <br>
+            <button onclick="rollDice()">Würfeln</button>
+            <div id="diceResult" style="margin-top: 10px; font-size: 1em;"></div>
+        </div>
+
+        <div class="box">
+            <select id="prefPlayer"></select>
+            <select id="prefType">
+                <option value="with">Mit Spieler</option>
+                <option value="notwith">Nicht mit Spieler</option>
+                <option value="in">In Team</option>
+                <option value="notin">Nicht in Team</option>
+            </select>
+            <select id="prefTarget"></select>
+            <button onclick="addPreference()">Hinzufügen</button>
+            <h3>Spieler-Präferenzen</h3>
+            <ul id="playerPreferencesList"></ul>
+
+            <h3>Team-Präferenzen</h3>
+            <ul id="teamPreferencesList"></ul>
+        </div>
+        <button onclick="toggleDarkMode()" id="darkModeToggle">🌓</button>
+    </div>
+    <div id="historyControls">
+        <button id="historyBack" onclick="goBackInHistory()" title="Zurück">⏪</button>
+        <button id="historyForward" onclick="goForwardInHistory()" title="Vor">⏩</button>
+    </div>
+    <footer style="text-align: center; padding: 1em; font-size: 0.9em;">
+        &copy; 2025 Benny354912. Lizenziert unter der <a href="https://opensource.org/licenses/MIT"
+            target="_blank">MIT-Lizenz</a>.
+    </footer>
+    <script>
+        console.log("Dieser Code ist unter der MIT-Lizenz lizenziert.");
+        console.log("© 2025 Benny354912. Weitere Informationen: https://opensource.org/licenses/MIT");
+        let shuffleHistory = [];
+        let shuffleHistoryIndex = -1;
+        const MAX_HISTORY = 100;
+
+        const defaultPlayers = [
+            { name: "Niklas", pool: 1 },
+            { name: "Rafa", pool: 1 },
+            { name: "Marica", pool: 1 },
+            { name: "Benny", pool: 2 },
+            { name: "Martin", pool: 2 },
+            { name: "Nino", pool: 2 },
+            { name: "Damian", pool: 2 },
+            { name: "Patrick", pool: 3 },
+            { name: "Marvin", pool: 3 },
+            { name: "Kurt", pool: 3 },
+            { name: "Moritz", pool: 3 }
+        ];
+
+        const teamNames = ["Rot", "Blau", "Grün", "Gelb", "Lila", "Pink", "Cyan", "Orange"];
+        const teamColors = ["#f88", "#88f", "#8f8", "#ff8", "#c8f", "#f8c", "#8ff", "#fc8"];
+        let teamsActive = Array(8).fill(true);
+        let players = defaultPlayers.map(p => ({ ...p, active: true }));
+        let playerPrefs = [];
+        let teamPrefs = [];
+
+        function addPlayer() {
+            const name = document.getElementById("newPlayerName").value.trim();
+            const pool = parseInt(document.getElementById("newPlayerPool").value);
+            if (name) {
+                players.push({ name, pool, active: true });
+                document.getElementById("newPlayerName").value = "";
+                renderPlayers();
+                renderPreferenceSelectors();
+            }
+        }
+
+        function togglePlayer(index) {
+            players[index].active = !players[index].active;
+            renderPlayers();
+        }
+
+        function togglePool(index) {
+            players[index].pool = (players[index].pool % 4) + 1;
+            renderPlayers();
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById("playersContainer");
+            container.innerHTML = "";
+
+            const sortedPlayers = [...players].map((p, i) => ({ ...p, index: i })).sort((a, b) => {
+                return (b.active === true) - (a.active === true);
+            });
+
+            sortedPlayers.forEach(p => {
+                const div = document.createElement("div");
+                const i = p.index;
+
+                div.className = `player ${p.active ? `pool-${p.pool}` : "inactive"}`;
+                div.style.position = "relative";
+                div.textContent = `${p.name} (P${p.pool})`;
+
+                // Toggle Aktivität bei Klick
+                div.onclick = () => {
+                    players[i].active = !players[i].active;
+                    renderPlayers();
+                };
+
+                // Pool wechseln bei Rechtsklick
+                div.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    players[i].pool = (players[i].pool % 4) + 1;
+                    renderPlayers();
+                };
+
+                // ❌ Löschen-Button
+                const removeBtn = document.createElement("span");
+                removeBtn.textContent = "❌";
+                removeBtn.style.position = "absolute";
+                removeBtn.style.right = "6px";
+                removeBtn.style.top = "4px";
+                removeBtn.style.cursor = "pointer";
+                removeBtn.style.fontSize = "1rem";
+                removeBtn.style.color = "red";
+                removeBtn.title = "Spieler löschen";
+
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Spieler "${p.name}" wirklich löschen?`)) {
+                        // Spieler & zugehörige Präferenzen löschen
+                        players.splice(i, 1);
+                        playerPrefs = playerPrefs.filter(pref => pref.player !== i && pref.target !== i);
+                        teamPrefs = teamPrefs.filter(pref => pref.player !== i);
+
+                        // Re-indexierung der verbleibenden Präferenzen
+                        playerPrefs.forEach(pref => {
+                            if (pref.player > i) pref.player--;
+                            if (pref.target > i) pref.target--;
+                        });
+                        teamPrefs.forEach(pref => {
+                            if (pref.player > i) pref.player--;
+                        });
+
+                        renderPlayers();
+                        renderPreferenceSelectors();
+                        renderPreferencesList();
+                    }
+                };
+
+                div.appendChild(removeBtn);
+                container.appendChild(div);
+            });
+        }
+
+        function renderTeamsConfig() {
+            const container = document.getElementById("teamsConfig");
+            container.innerHTML = "";
+
+            // Sortiere aktivierte Teams zuerst
+            const sortedTeamIndexes = [...Array(teamNames.length).keys()].sort((a, b) => {
+                return (teamsActive[b] ? 1 : 0) - (teamsActive[a] ? 1 : 0);
+            });
+
+            sortedTeamIndexes.forEach(i => {
+                const div = document.createElement("div");
+                div.className = "team-toggle";
+                div.textContent = teamNames[i];
+                div.style.background = teamColors[i];
+                div.dataset.index = i;
+
+                if (!teamsActive[i]) {
+                    div.classList.add("inactive");
+                }
+
+                div.onclick = () => {
+                    teamsActive[i] = !teamsActive[i];
+                    renderTeamsConfig();
+                };
+
+                container.appendChild(div);
+            });
+        }
+
+        function toggleTeam(index) {
+            teamsActive[index] = !teamsActive[index];
+        }
+
+        function renderPreferenceSelectors() {
+            const pSel = document.getElementById("prefPlayer");
+            const tSel = document.getElementById("prefTarget");
+            pSel.innerHTML = "";
+            tSel.innerHTML = "";
+            players.forEach((p, i) => {
+                const opt = new Option(p.name, i);
+                pSel.appendChild(opt);
+                tSel.appendChild(new Option(p.name, i));
+            });
+            teamNames.forEach((t, i) => {
+                tSel.appendChild(new Option(`[Team] ${t}`, `team-${i}`));
+            });
+        }
+
+        function addPreference() {
+            const p = parseInt(document.getElementById("prefPlayer").value);
+            const type = document.getElementById("prefType").value;
+            const tRaw = document.getElementById("prefTarget").value;
+
+            if (tRaw.startsWith("team-")) {
+                const teamIndex = parseInt(tRaw.split("-")[1]);
+                teamPrefs.push({ player: p, teamIndex, type, active: true });
+            } else {
+                const target = parseInt(tRaw);
+                if (p === target) {
+                    alert("Ein Spieler kann keine Präferenz mit sich selbst haben.");
+                    return;
+                }
+                const alreadyExists = playerPrefs.some(pref =>
+                    pref.player === p && pref.target === target && pref.type === type
+                );
+                if (alreadyExists) {
+                    alert("Diese Präferenz existiert bereits.");
+                    return;
+                }
+                playerPrefs.push({ player: p, target, type, active: true });
+            }
+            renderPreferencesList();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        async function shuffleTeams() {
+            const usePoolWeights = document.getElementById("usePoolWeights").checked;
+            const usePlayerPrefs = document.getElementById("usePlayerPrefs").checked;
+            const useTeamPrefs = document.getElementById("useTeamPrefs").checked;
+            const roundCount = parseInt(document.getElementById("roundCount")?.value || "1");
+            const MAX_ATTEMPTS = 5000000;
+
+            const weights = {
+                1: usePoolWeights ? (parseInt(document.getElementById("weightP1").value) || 5) : 0,
+                2: usePoolWeights ? (parseInt(document.getElementById("weightP2").value) || 3) : 0,
+                3: usePoolWeights ? (parseInt(document.getElementById("weightP3").value) || 2) : 0,
+                4: usePoolWeights ? (parseInt(document.getElementById("weightP4").value) || 1) : 0
+            };
+
+            const shuffleBtn = document.getElementById("shuffleButton");
+            shuffleBtn.disabled = true;
+            shuffleBtn.textContent = `⏳ Shuffling...`;
+
+            const teamIndexes = teamsActive.map((active, i) => active ? i : null).filter(x => x !== null);
+            const activePlayers = players.map((p, i) => ({ ...p, index: i })).filter(p => p.active);
+            const teams = teamIndexes.map(i => ({ name: teamNames[i], color: teamColors[i], index: i }));
+
+            const pairCounter = {}; // z. B. { "Niklas|Rafa": 2 }
+
+            const allRoundResults = [];
+
+            function emptyTeamMap() {
+                const map = {};
+                for (const team of teams) map[team.index] = [];
+                return map;
+            }
+
+            function allPrefsSatisfied(teamMap) {
+                for (const team of Object.values(teamMap)) {
+                    const playerIndices = team.map(p => p.index);
+                    for (const player of team) {
+                        if (useTeamPrefs) {
+                            const tpref = teamPrefs.find(p => p.active && p.player === player.index);
+                            if (tpref) {
+                                if (tpref.type === "in" && team.index !== tpref.teamIndex) return false;
+                                if (tpref.type === "notin" && team.index === tpref.teamIndex) return false;
+                            }
+                        }
+                        if (usePlayerPrefs) {
+                            const prefs = playerPrefs.filter(p => p.active && p.player === player.index);
+                            for (const pref of prefs) {
+                                const sameTeam = playerIndices.includes(pref.target);
+                                if (pref.type === "with" && !sameTeam) return false;
+                                if (pref.type === "notwith" && sameTeam) return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+
+            function calculateDeviation(teamMap) {
+                const totals = Object.values(teamMap).map(players =>
+                    players.reduce((sum, p) => sum + weights[p.pool], 0)
+                );
+                const avg = totals.reduce((a, b) => a + b, 0) / totals.length;
+                return totals.reduce((sum, v) => sum + Math.pow(v - avg, 2), 0) / totals.length;
+            }
+
+            function uniquePairScore(teamMap) {
+                let score = 0;
+                for (const team of Object.values(teamMap)) {
+                    for (let i = 0; i < team.length; i++) {
+                        for (let j = i + 1; j < team.length; j++) {
+                            const names = [team[i].name, team[j].name].sort().join("|");
+                            score += pairCounter[names] || 0;
+                        }
+                    }
+                }
+                return score;
+            }
+
+            for (let round = 0; round < roundCount; round++) {
+                const validSolutions = [];
+                let attempts = 0;
+
+                async function tryAssignments(remaining, teamMap) {
+                    if (attempts >= MAX_ATTEMPTS) return;
+                    if (remaining.length === 0) {
+                        if (!allPrefsSatisfied(teamMap)) return;
+                        validSolutions.push(JSON.parse(JSON.stringify(teamMap)));
+                        return;
+                    }
+
+                    const [player, ...rest] = remaining;
+                    const shuffledTeams = shuffleArray([...teams]);
+
+                    for (const team of shuffledTeams) {
+                        if (attempts >= MAX_ATTEMPTS) return;
+
+                        teamMap[team.index].push(player);
+                        attempts++;
+
+                        if (attempts % 1000 === 0) {
+                            shuffleBtn.textContent = `⏳ Runde ${round + 1}, Versuche: ${attempts}`;
+                            await new Promise(res => setTimeout(res, 1));
+                        }
+
+                        await tryAssignments(rest, teamMap);
+                        teamMap[team.index].pop();
+                    }
+                }
+
+                const baseMap = emptyTeamMap();
+                await tryAssignments(activePlayers, baseMap);
+
+                if (validSolutions.length === 0) {
+                    alert(`Runde ${round + 1}: Keine gültige Lösung gefunden.`);
+                    continue;
+                }
+
+                // Beste Lösung nach Diversität und Team-Balance wählen
+                let best = validSolutions[0];
+                let bestScore = uniquePairScore(best) + calculateDeviation(best);
+
+                for (const solution of validSolutions) {
+                    const score = uniquePairScore(solution) + calculateDeviation(solution);
+                    if (score < bestScore) {
+                        best = solution;
+                        bestScore = score;
+                    }
+                }
+
+                // Paarungen merken
+                for (const team of Object.values(best)) {
+                    for (let i = 0; i < team.length; i++) {
+                        for (let j = i + 1; j < team.length; j++) {
+                            const key = [team[i].name, team[j].name].sort().join("|");
+                            pairCounter[key] = (pairCounter[key] || 0) + 1;
+                        }
+                    }
+                }
+
+                allRoundResults.push(best);
+            }
+
+            // Anzeige vorbereiten
+            const resultContainer = document.getElementById("shuffleResults");
+            resultContainer.innerHTML = "";
+
+            allRoundResults.forEach((teamMap, i) => {
+                const roundWrapper = document.createElement("div");
+                roundWrapper.classList.add("round-container");
+
+                const roundTitle = document.createElement("h2");
+                roundTitle.textContent = `Runde ${i + 1}`;
+                roundWrapper.appendChild(roundTitle);
+
+                const teamsList = teamIndexes.map(idx => ({
+                    name: teamNames[idx],
+                    color: teamColors[idx],
+                    index: idx,
+                    players: teamMap[idx] || [],
+                    weight: (teamMap[idx] || []).reduce((sum, p) => sum + weights[p.pool], 0)
+                }));
+
+                const teamGrid = document.createElement("div");
+                teamGrid.classList.add("teams-grid");
+                roundWrapper.appendChild(teamGrid);
+                resultContainer.appendChild(roundWrapper);
+
+                renderDraggableTeams(teamsList, weights, teamGrid);
+            });
+
+            window.currentRounds = allRoundResults.map(teamMap =>
+                teamIndexes.map(index => ({
+                    name: teamNames[index],
+                    color: teamColors[index],
+                    index: index,
+                    players: teamMap[index] || [],
+                    weight: (teamMap[index] || []).reduce((sum, p) => sum + weights[p.pool], 0)
+                }))
+            );
+            window.currentWeights = { ...weights };
+
+            // Verlauf speichern
+            const historySnapshot = {
+                rounds: JSON.parse(JSON.stringify(window.currentRounds)),
+                weights: { ...weights },
+                players: JSON.parse(JSON.stringify(players)),
+                playerPrefs: JSON.parse(JSON.stringify(playerPrefs)),
+                teamPrefs: JSON.parse(JSON.stringify(teamPrefs)),
+                teamsActive: [...teamsActive]
+            };
+
+            shuffleHistory.push(historySnapshot);
+            if (shuffleHistory.length > MAX_HISTORY) {
+                shuffleHistory.shift();
+            }
+            shuffleHistoryIndex = shuffleHistory.length - 1;
+            updateHistoryButtons();
+
+            shuffleBtn.disabled = false;
+            shuffleBtn.textContent = "Shuffle";
+
+            localStorage.setItem("proshufflerState", JSON.stringify({
+                players,
+                playerPrefs,
+                teamPrefs,
+                teamsActive,
+                poolWeights: {
+                    1: document.getElementById("weightP1").value,
+                    2: document.getElementById("weightP2").value,
+                    3: document.getElementById("weightP3").value,
+                    4: document.getElementById("weightP4").value,
+                },
+                roundCount: document.getElementById("roundCount").value,
+                shuffleHistory,
+                shuffleHistoryIndex
+            }));
+        }
+
+        function renderDraggableTeams(teams, weights, container) {
+            container.innerHTML = "";
+
+            teams.forEach((team, teamIndex) => {
+                const div = document.createElement("div");
+                div.className = "team";
+                div.style.borderLeft = `8px solid ${team.color}`;
+                div.style.background = `rgba(255, 255, 255, 0.03)`;
+                div.dataset.teamIndex = teamIndex;
+
+                const title = document.createElement("div");
+                title.className = "team-name";
+                title.textContent = `${team.name} (Wert: ${team.weight})`;
+                div.appendChild(title);
+
+                const ul = document.createElement("ul");
+                ul.dataset.teamIndex = teamIndex;
+                ul.ondragover = e => e.preventDefault();
+                ul.ondrop = e => {
+                    e.preventDefault();
+                    const playerIndex = parseInt(e.dataTransfer.getData("text/plain"));
+                    const fromTeam = teams.find(t => t.players.some(p => p.index === playerIndex));
+                    const player = fromTeam.players.find(p => p.index === playerIndex);
+
+                    fromTeam.players = fromTeam.players.filter(p => p.index !== playerIndex);
+                    fromTeam.weight -= weights[player.pool];
+
+                    const newTeam = teams[teamIndex];
+                    newTeam.players.push(player);
+                    newTeam.weight += weights[player.pool];
+
+                    renderDraggableTeams(teams, weights, container);
+                    validatePreferences(teams);
+                };
+
+                team.players.forEach(p => {
+                    const li = document.createElement("li");
+                    li.draggable = true;
+                    li.textContent = `${p.name} (P${p.pool})`;
+                    li.ondragstart = e => e.dataTransfer.setData("text/plain", p.index);
+                    ul.appendChild(li);
+                });
+
+                div.appendChild(ul);
+                container.appendChild(div);
+            });
+        }
+
+        function validatePreferences(teams) {
+            const usePlayerPrefs = document.getElementById("usePlayerPrefs").checked;
+            const useTeamPrefs = document.getElementById("useTeamPrefs").checked;
+
+            let prefsStatus = {
+                playerPrefs: playerPrefs.map((pref, i) => {
+                    if (!pref.active || !usePlayerPrefs) return true;
+                    const team = teams.find(t => t.players.some(p => p.index === pref.player));
+                    const sameTeam = team?.players.some(p => p.index === pref.target);
+                    return pref.type === "with" ? sameTeam : !sameTeam;
+                }),
+                teamPrefs: teamPrefs.map((pref, i) => {
+                    if (!pref.active || !useTeamPrefs) return true;
+                    const team = teams.find(t => t.players.some(p => p.index === pref.player));
+                    if (!team) return false;
+                    return pref.type === "in" ? team.index === pref.teamIndex : team.index !== pref.teamIndex;
+                })
+            };
+            renderPreferencesList(prefsStatus);
+        }
+
+        function renderPreferencesList(prefsStatus = null) {
+            const playerList = document.getElementById("playerPreferencesList");
+            const teamList = document.getElementById("teamPreferencesList");
+            playerList.innerHTML = "";
+            teamList.innerHTML = "";
+
+            playerPrefs.forEach((pref, i) => {
+                const li = document.createElement("li");
+                let fulfilled = prefsStatus ? prefsStatus.playerPrefs[i] : null;
+
+                li.className = `preference-box ${pref.type}`;
+                if (!pref.active) li.classList.add("inactive");
+                else if (fulfilled === true) li.classList.add("valid");
+                else if (fulfilled === false) li.classList.add("invalid");
+
+                li.textContent = `${players[pref.player].name} ${pref.type === "with" ? "mit" : "nicht mit"} ${players[pref.target].name}`;
+
+                li.onclick = () => {
+                    pref.active = !pref.active;
+                    validatePreferences(window.currentTeams || []);
+                };
+
+                li.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    playerPrefs.splice(i, 1);
+                    renderPreferencesList(prefsStatus);
+                    validatePreferences(window.currentTeams || []);
+                };
+
+                playerList.appendChild(li);
+            });
+
+            teamPrefs.forEach((pref, i) => {
+                const li = document.createElement("li");
+                let fulfilled = prefsStatus ? prefsStatus.teamPrefs[i] : null;
+
+                li.className = `preference-box ${pref.type}`;
+                if (!pref.active) li.classList.add("inactive");
+                else if (fulfilled === true) li.classList.add("valid");
+                else if (fulfilled === false) li.classList.add("invalid");
+
+                li.textContent = `${players[pref.player].name} ${pref.type === "in" ? "in" : "nicht in"} ${teamNames[pref.teamIndex]}`;
+
+                li.onclick = () => {
+                    pref.active = !pref.active;
+                    validatePreferences(window.currentTeams || []);
+                };
+
+                li.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    teamPrefs.splice(i, 1);
+                    renderPreferencesList(prefsStatus);
+                    validatePreferences(window.currentTeams || []);
+                };
+
+                teamList.appendChild(li);
+            });
+        }
+
+        function loadHistory(index) {
+            if (index < 0 || index >= shuffleHistory.length) return;
+            const h = shuffleHistory[index];
+
+            players = JSON.parse(JSON.stringify(h.players));
+            playerPrefs = JSON.parse(JSON.stringify(h.playerPrefs));
+            teamPrefs = JSON.parse(JSON.stringify(h.teamPrefs));
+            teamsActive = [...h.teamsActive];
+            window.currentRounds = JSON.parse(JSON.stringify(h.rounds));
+            window.currentWeights = { ...h.weights };
+
+            renderPlayers();
+            renderTeamsConfig();
+            renderPreferenceSelectors();
+
+            const resultContainer = document.getElementById("shuffleResults");
+            resultContainer.innerHTML = "";
+
+            // Neue Darstellung: Runden untereinander, Teams nebeneinander
+            window.currentRounds.forEach((teams, roundIndex) => {
+                const roundWrapper = document.createElement("div");
+                roundWrapper.classList.add("round-container");
+
+                const roundTitle = document.createElement("h2");
+                roundTitle.textContent = `Runde ${roundIndex + 1}`;
+                roundWrapper.appendChild(roundTitle);
+
+                const teamGrid = document.createElement("div");
+                teamGrid.classList.add("teams-grid");
+                roundWrapper.appendChild(teamGrid);
+                resultContainer.appendChild(roundWrapper);
+
+                renderDraggableTeams(teams, window.currentWeights, teamGrid);
+            });
+
+            validatePreferences(window.currentRounds[0] || []);
+            updateHistoryButtons();
+        }
+
+        function updateHistoryButtons() {
+            const backBtn = document.getElementById("historyBack");
+            const forwardBtn = document.getElementById("historyForward");
+
+            backBtn.disabled = shuffleHistoryIndex <= 0;
+            forwardBtn.disabled = shuffleHistoryIndex >= shuffleHistory.length - 1;
+
+            const total = shuffleHistory.length;
+            const current = shuffleHistoryIndex + 1; // menschlich gezählt ab 1
+
+            backBtn.title = `⬅️ Shuffle ${current} von ${total}`;
+            forwardBtn.title = `➡️ Shuffle ${current} von ${total}`;
+        }
+
+        function goBackInHistory() {
+            if (shuffleHistoryIndex > 0) {
+                shuffleHistoryIndex--;
+                loadHistory(shuffleHistoryIndex);
+            }
+        }
+
+        function goForwardInHistory() {
+            if (shuffleHistoryIndex < shuffleHistory.length - 1) {
+                shuffleHistoryIndex++;
+                loadHistory(shuffleHistoryIndex);
+            }
+        }
+
+        function rollDice() {
+            const type = parseInt(document.getElementById("diceType").value);
+            const result = Math.floor(Math.random() * type) + 1;
+            const resultDiv = document.getElementById("diceResult");
+
+            if (type === 2) {
+                resultDiv.textContent = `🪙 ${result === 1 ? "Kopf" : "Zahl"}`;
+                resultDiv.style.color = result === 1 ? "green" : "blue";
+            } else {
+                resultDiv.textContent = `🎲 Ergebnis: ${result}`;
+                resultDiv.style.color = "black";
+            }
+        }
+
+        function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle("dark");
+
+            const isDark = body.classList.contains("dark");
+            localStorage.setItem("darkMode", isDark ? "1" : "0");
+
+            updateDarkModeIcon();
+        }
+
+        function updateDarkModeIcon() {
+            const icon = document.getElementById("darkModeToggle");
+            icon.textContent = document.body.classList.contains("dark") ? "🌙" : "☀️";
+        }
+
+        // Beim Laden: Zustand wiederherstellen
+        window.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("darkMode") === "1") {
+                document.body.classList.add("dark");
+            }
+            updateDarkModeIcon();
+
+            const saved = localStorage.getItem("proshufflerState");
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    players = data.players || players;
+                    playerPrefs = data.playerPrefs || [];
+                    teamPrefs = data.teamPrefs || [];
+                    teamsActive = data.teamsActive || teamsActive;
+
+                    if (data.poolWeights) {
+                        document.getElementById("weightP1").value = data.poolWeights[1];
+                        document.getElementById("weightP2").value = data.poolWeights[2];
+                        document.getElementById("weightP3").value = data.poolWeights[3];
+                        document.getElementById("weightP4").value = data.poolWeights[4];
+                    }
+
+                    if (data.roundCount) {
+                        document.getElementById("roundCount").value = data.roundCount;
+                    }
+
+                    shuffleHistory = data.shuffleHistory || [];
+                    shuffleHistoryIndex = data.shuffleHistoryIndex ?? -1;
+
+                    if (shuffleHistory.length > 0 && shuffleHistoryIndex >= 0) {
+                        loadHistory(shuffleHistoryIndex);
+                    }
+                } catch (e) {
+                    console.warn("Fehler beim Laden gespeicherter Daten:", e);
+                }
+            }
+
+            renderPlayers();
+            renderTeamsConfig();
+            renderPreferenceSelectors();
+        });
+
+        renderPlayers();
+        renderTeamsConfig();
+        renderPreferenceSelectors();
+    </script>
+</body>
+
+</html>
+
+<!-- 
+  Dieser Code ist unter der MIT-Lizenz lizenziert.
+  Weitere Informationen finden Sie in der beigefügten LICENSE-Datei.
+  © 2025 Benny354912
+-->
