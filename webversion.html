@@ -21,11 +21,10 @@
             --danger: #ef4444;
             --muted: #9ca3af;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-
             --pool-1: #f87171;
             --pool-2: #34d399;
             --pool-3: #60a5fa;
-            --pool-4: #a78bfa;
+            --pool-4: #a78bfa
         }
 
         body.dark {
@@ -38,16 +37,14 @@
             --danger: #ef4444;
             --muted: #9ca3af;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-
             --pool-1: #dc2626;
             --pool-2: #059669;
             --pool-3: #2563eb;
-            --pool-4: #7c3aed;
+            --pool-4: #7c3aed
         }
 
-
         * {
-            box-sizing: border-box;
+            box-sizing: border-box
         }
 
         body {
@@ -57,20 +54,20 @@
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
-            transition: background 0.3s, color 0.3s;
+            transition: background .3s, color .3s
         }
 
         h1,
         h2 {
             margin: 0 0 1rem;
-            color: var(--primary);
+            color: var(--primary)
         }
 
         .container {
             display: flex;
             flex-wrap: wrap;
             gap: 2rem;
-            justify-content: center;
+            justify-content: center
         }
 
         .box {
@@ -80,49 +77,65 @@
             padding: 1.5rem;
             box-shadow: var(--shadow);
             flex: 1 1 320px;
-            max-width: 500px;
+            max-width: 500px
         }
 
-        input[type="text"],
-        input[type="number"],
-        select,
-        button {
+        button,
+        input[type=number],
+        input[type=text],
+        select {
             width: 100%;
-            padding: 0.7rem 1rem;
+            padding: .7rem 1rem;
             font-size: 1rem;
-            margin-top: 0.5rem;
+            margin-top: .5rem;
             margin-bottom: 1rem;
-            border-radius: 0.6rem;
-            border: 1px solid var(--border);
+            border-radius: .6rem;
+            border: 1px solid var(--border)
         }
 
         button {
             background: var(--primary);
-            color: white;
+            color: #fff;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background .2s
         }
 
         button:hover {
-            background: #4f46e5;
+            background: #4f46e5
+        }
+
+        .player,
+        .toggle-group label {
+            display: flex;
+            align-items: center
         }
 
         .player {
-            display: flex;
-            align-items: center;
-            padding: 0.6rem 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 0.4rem;
+            padding: .6rem 1rem;
+            border-radius: .5rem;
+            margin-bottom: .4rem;
             font-weight: 500;
             cursor: pointer;
             position: relative;
             background: #f3f4f6;
-            transition: background 0.2s ease;
+            color: var(--text);
+            transition: background .3s, color .3s;
+            min-width: 0;
+            word-break: break-word
         }
 
         .player:hover {
-            background: #e5e7eb;
+            background: #e5e7eb
+        }
+
+        body.dark .player {
+            background: #4b5563;
+            color: #f9fafb
+        }
+
+        body.dark .player:hover {
+            background: #6b7280
         }
 
         .player::before {
@@ -132,227 +145,226 @@
             position: absolute;
             left: 0;
             top: 0;
-            border-radius: 5px 0 0 5px;
+            border-radius: 5px 0 0 5px
         }
 
         .pool-1::before {
-            background: var(--pool-1);
+            background: var(--pool-1)
         }
 
         .pool-2::before {
-            background: var(--pool-2);
+            background: var(--pool-2)
         }
 
         .pool-3::before {
-            background: var(--pool-3);
+            background: var(--pool-3)
         }
 
         .pool-4::before {
-            background: var(--pool-4);
+            background: var(--pool-4)
         }
 
         .inactive {
-            background: #e5e7eb;
-            color: #6b7280;
+            background: #e5e7eb !important;
+            color: #6b7280 !important;
             text-decoration: line-through;
+            opacity: .6;
+            border-left: none !important
         }
 
         .teams-box {
-            flex: 1 1 100%;
+            flex: 1 1 100%
+        }
+
+        .team,
+        .teams-grid .team {
+            padding: 1rem;
+            border-radius: .75rem;
+            border-left: 5px solid var(--primary)
         }
 
         .team {
-            padding: 1rem;
             margin-bottom: 1rem;
-            border-radius: 0.75rem;
-            border-left: 5px solid var(--primary);
             background: var(--card);
             color: var(--text);
             box-shadow: var(--shadow);
-            transition: background 0.3s, color 0.3s;
+            transition: background .3s, color .3s;
+            flex: 0 0 260px;
+            max-width: 260px
         }
 
         .team-name {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
+            font-weight: 700;
+            margin-bottom: .5rem
         }
 
         ul {
             margin: 0;
-            padding-left: 1.2rem;
+            padding-left: 1.2rem
         }
 
         li {
-            margin-bottom: 0.3rem;
+            margin-bottom: .3rem
         }
 
         .preference-tag {
             display: inline-block;
-            padding: 0.3rem 0.6rem;
+            padding: .3rem .6rem;
             background: #e0e7ff;
             color: #1e3a8a;
-            border-radius: 0.5rem;
-            margin: 0.3rem;
-            font-size: 0.85rem;
-            font-weight: 500;
+            border-radius: .5rem;
+            margin: .3rem;
+            font-size: .85rem;
+            font-weight: 500
         }
 
         .toggle-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: .5rem
         }
 
         .toggle-group label {
-            display: flex;
-            align-items: center;
-            font-size: 0.95rem;
+            font-size: .95rem
         }
 
         .toggle-group input {
-            margin-right: 0.5rem;
+            margin-right: .5rem
         }
 
         #diceResult {
             font-size: 2.5rem;
             text-align: center;
             margin-top: 1rem;
-            font-weight: 600;
+            font-weight: 600
         }
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width:768px) {
             .container {
-                flex-direction: column;
+                flex-direction: column
             }
         }
 
         .teams-top-container {
             width: 100%;
-            margin-bottom: 2rem;
+            margin-bottom: 2rem
+        }
+
+        .teams-grid {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: .5rem
         }
 
         .teams-grid .team {
-            background: #f9fafb;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            border-left: 5px solid var(--primary);
+            background: #f9fafb
+        }
+
+        .teams-grid::-webkit-scrollbar {
+            height: 8px
+        }
+
+        .teams-grid::-webkit-scrollbar-thumb {
+            background: var(--muted);
+            border-radius: 4px
         }
 
         .team-toggle {
-            padding: 0.7rem 1rem;
-            border-radius: 0.5rem;
+            flex: 1 1 calc(50% - 1rem);
+            padding: .7rem 1rem;
+            border-radius: .5rem;
             color: #1f2937;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            margin-bottom: 0.5rem;
-            transition: all 0.2s ease;
+            transition: all .2s ease;
             user-select: none;
+            text-align: center;
+            min-width: 120px;
+            margin-bottom: .5rem
         }
 
         .team-toggle.inactive {
             background: #e5e7eb !important;
             color: #6b7280;
             text-decoration: line-through;
-            opacity: 0.6;
+            opacity: .6
         }
 
         .team-toggle+.team-toggle.inactive {
             margin-top: 1rem;
             border-top: 1px dashed #ccc;
-            padding-top: 1rem;
+            padding-top: 1rem
         }
 
         #teamsConfig {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1rem
         }
 
-        .team-toggle {
-            flex: 1 1 calc(50% - 1rem);
-            padding: 0.7rem 1rem;
-            border-radius: 0.5rem;
-            color: #1f2937;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            user-select: none;
-            text-align: center;
-            min-width: 120px;
-        }
-
-        .team-toggle.inactive {
-            background: #e5e7eb !important;
-            color: #6b7280;
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-
-        .pool-grid {
+        #playersContainer,
+        .pool-grid,
+        .team ul {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
+            gap: 1rem
         }
 
         .pool-grid label {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-weight: 500;
+            gap: .5rem;
+            font-weight: 500
         }
 
-        #playersContainer {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
-        }
-
-        .player {
-            min-width: 0;
-            word-break: break-word;
+        #playersContainer,
+        .team ul {
+            gap: .5rem
         }
 
         .player-input-row {
             display: flex;
             gap: 0;
-            margin-bottom: 1rem;
+            margin-bottom: 1rem
         }
 
-        .player-input-row input[type="text"] {
-            border-radius: 0.6rem 0 0 0.6rem;
+        .player-input-row input[type=text] {
+            border-radius: .6rem 0 0 .6rem;
             border-right: none;
-            flex: 2;
+            flex: 2
         }
 
         .player-input-row select {
-            border-radius: 0 0.6rem 0.6rem 0;
+            border-radius: 0 .6rem .6rem 0;
             border-left: none;
-            flex: 1;
+            flex: 1
         }
 
         .team ul {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            /* Maximal 2 Spalten */
-            gap: 0.3rem;
+            gap: .3rem;
             padding-left: 0;
-            list-style: none;
+            list-style: none
         }
 
-        @media (max-width: 500px) {
+        @media (max-width:500px) {
             .team ul {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr
             }
         }
 
         #shuffleButton.blue {
-            background-color: #007bff;
-            /* Blau */
+            background-color: #007bff
         }
 
+        #shuffleButton.blue .progress-bar,
         #shuffleButton.green {
-            background-color: #28a745;
-            /* Grün */
+            background-color: #28a745
+        }
+
+        #shuffleButton.green .progress-bar {
+            background-color: #007bff
         }
 
         .progress-bar {
@@ -361,182 +373,73 @@
             left: 0;
             height: 5px;
             width: 0%;
-            transition: width 0.2s ease;
-        }
-
-        #shuffleButton.blue .progress-bar {
-            background-color: #28a745;
-            /* grüner Balken, wenn Button blau */
-        }
-
-        #shuffleButton.green .progress-bar {
-            background-color: #007bff;
-            /* blauer Balken, wenn Button grün */
-        }
-
-        #preferencesList {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            list-style: none;
-            padding: 0;
-            margin-top: 1rem;
-        }
-
-        .preference-box {
-            display: inline-block;
-            padding: 0.5rem 0.8rem;
-            border-radius: 0.5rem;
-            background: #dbeafe;
-            color: #1e3a8a;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            position: relative;
-            user-select: none;
-            transition: all 0.2s ease;
-        }
-
-        .preference-box.inactive {
-            background: #e5e7eb;
-            color: #6b7280;
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-
-        .preference-box:hover {
-            filter: brightness(1.1);
-        }
-
-        .preference-box::after {
-            font-size: 0.8rem;
-            position: absolute;
-            top: 4px;
-            right: 6px;
-            opacity: 0.5;
-            pointer-events: none;
+            transition: width .2s ease
         }
 
         #playerPreferencesList,
+        #preferencesList,
         #teamPreferencesList {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: .5rem;
             list-style: none;
             padding: 0;
-            margin-top: 1rem;
+            margin-top: 1rem
         }
 
         .preference-box {
-            padding: 0.5rem 0.8rem;
-            border-radius: 0.5rem;
+            padding: .5rem .8rem;
+            border-radius: .5rem;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: .9rem;
             font-weight: 500;
-            position: relative;
             user-select: none;
             border-left: 6px solid transparent;
-            transition: all 0.2s ease;
-            max-width: 100%;
+            transition: all .2s ease;
+            max-width: 100%
         }
 
-        .preference-box.with {
+        .preference-box.positiv {
             background: #d1fae5;
-            color: #065f46;
+            color: #065f46
         }
 
-        .preference-box.notwith {
+        .preference-box.negativ {
             background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .preference-box.in {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .preference-box.notin {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .preference-box.inactive {
-            background: #e5e7eb !important;
-            color: #6b7280 !important;
-            text-decoration: line-through;
-            opacity: 0.6;
-            border-left: none !important;
+            color: #991b1b
         }
 
         .preference-box.valid {
-            border-left: 6px solid #10b981;
+            border-left: 6px solid #10b981
         }
 
         .preference-box.invalid {
-            border-left: 6px solid #ef4444;
+            border-left: 6px solid #ef4444
         }
 
+        .preference-box:hover {
+            filter: brightness(1.1)
+        }
+
+        .preference-box::after {
+            font-size: .8rem;
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            opacity: .5;
+            pointer-events: none
+        }
+
+        .preference-box,
         button[title] {
-            position: relative;
+            position: relative
         }
 
         button[title]:hover {
-            cursor: pointer;
+            cursor: pointer
         }
 
-        .player {
-            background: #f3f4f6;
-            color: var(--text);
-            transition: background 0.3s, color 0.3s;
-        }
-
-        body.dark .player {
-            background: #4b5563;
-            color: #f9fafb;
-        }
-
-        .player:hover {
-            background: #e5e7eb;
-        }
-
-        body.dark .player:hover {
-            background: #6b7280;
-        }
-
-        #darkModeToggle {
-            position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            font-size: 1.2rem;
-            background: var(--card);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: background 0.3s, color 0.3s, transform 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-
-        #darkModeToggle:hover {
-            transform: scale(1.1);
-        }
-
-        #historyControls {
-            position: fixed;
-            bottom: 1rem;
-            left: 1rem;
-            z-index: 9999;
-            display: flex;
-            gap: 0;
-        }
-
+        #darkModeToggle,
         #historyControls button {
             width: 40px;
             height: 40px;
@@ -545,71 +448,279 @@
             background: var(--card);
             color: var(--text);
             border: 1px solid var(--border);
-            cursor: pointer;
-            transition: background 0.3s, color 0.3s;
+            cursor: pointer
+        }
+
+        #darkModeToggle,
+        #historyControls {
+            position: fixed;
+            bottom: 1rem;
+            z-index: 9999;
+            display: flex
+        }
+
+        #darkModeToggle {
+            right: 1rem;
+            border-radius: 50%;
+            box-shadow: var(--shadow);
+            transition: background .3s, color .3s, transform .2s ease;
+            align-items: center;
+            justify-content: center
+        }
+
+        #darkModeToggle:hover {
+            transform: scale(1.1)
+        }
+
+        #historyControls {
+            left: 1rem;
+            gap: 0
+        }
+
+        #historyControls button {
+            transition: background .3s, color .3s;
             opacity: 1;
-            border-radius: 0;
+            border-radius: 0
         }
 
         #historyControls button:first-child {
             border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
+            border-bottom-left-radius: 8px
         }
 
         #historyControls button:last-child {
             border-top-right-radius: 8px;
             border-bottom-right-radius: 8px;
-            border-left: none;
+            border-left: none
         }
 
         #historyControls button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .round-container h2 {
-            margin-bottom: 1rem;
+            opacity: .4;
+            cursor: not-allowed
         }
 
         .round-container {
             width: 100%;
-            margin-bottom: 0rem;
-            overflow-x: auto;
+            margin-bottom: 0;
+            overflow-x: auto
         }
 
         .round-container h2 {
-            margin-bottom: 1rem;
-        }
-
-        .teams-grid {
-            display: flex;
-            flex-wrap: nowrap;
-            /* ❗ keine zweite Zeile */
-            gap: 1rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-        }
-
-        /* Optional: Scrollbar optisch verbessern */
-        .teams-grid::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .teams-grid::-webkit-scrollbar-thumb {
-            background: var(--muted);
-            border-radius: 4px;
-        }
-
-        /* Team-Karten feste Breite */
-        .team {
-            flex: 0 0 260px;
-            /* oder 280px, 300px – je nach Geschmack */
-            max-width: 260px;
+            margin-bottom: 1rem
         }
 
         #shuffleResults {
             display: block;
+            width: 100%
+        }
+
+        #roundCount,
+        #shuffleButton {
+            display: inline-block;
+            vertical-align: middle;
+            border: 1px solid var(--border);
+            border-radius: 0;
+            margin: 0;
+            box-sizing: border-box
+        }
+
+        #shuffleButton {
+            border-top-left-radius: .6rem;
+            border-bottom-left-radius: .6rem;
+            width: auto
+        }
+
+        #roundCount {
+            border-top-right-radius: .6rem;
+            border-bottom-right-radius: .6rem
+        }
+
+        #diceType,
+        #diceType+button {
+            display: inline-block;
+            vertical-align: middle;
+            border: 1px solid var(--border);
+            border-radius: 0;
+            margin: 0;
+            box-sizing: border-box
+        }
+
+        #diceType {
+            border-top-left-radius: .6rem;
+            border-bottom-left-radius: .6rem;
+            width: auto
+        }
+
+        #diceType+button {
+            border-top-right-radius: .6rem;
+            border-bottom-right-radius: .6rem
+        }
+
+        #prefPlayer,
+        #prefTarget,
+        #prefType {
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 1rem;
+            padding: .5rem .75rem;
+            border: 1px solid var(--border);
+            border-radius: 0;
+            margin: 0;
+            box-sizing: border-box;
+            width: auto;
+            min-width: 120px
+        }
+
+        #prefPlayer {
+            border-top-left-radius: .6rem;
+            border-bottom-left-radius: .6rem
+        }
+
+        #prefTarget,
+        #prefType {
+            border-left: none
+        }
+
+        #prefTarget {
+            border-top-right-radius: .6rem;
+            border-bottom-right-radius: .6rem
+        }
+
+        #prefTarget+button,
+        .pref-container select {
+            border: 1px solid var(--border);
+            font-size: 1rem;
+            cursor: pointer
+        }
+
+        #prefTarget+button {
+            margin-left: .5rem;
+            padding: .5rem 1rem;
+            border-radius: .6rem;
+            background: var(--primary);
+            color: #fff;
+            vertical-align: middle
+        }
+
+        #diceType,
+        #shuffleButton {
+            outline: 0
+        }
+
+        #diceType+button {
+            border: 0;
+            padding: .7rem 1rem;
+            outline: 0
+        }
+
+        .pref-container {
+            align-items: center
+        }
+
+        .pref-container select {
+            flex: 1;
+            padding: .5rem .75rem;
+            outline: 0;
+            appearance: none
+        }
+
+        #diceType+button,
+        #shuffleButton,
+        .pref-container button {
+            background: var(--primary);
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer
+        }
+
+        .pref-container button {
+            margin-left: .5rem;
+            padding: .5rem 1rem;
+            border-radius: .6rem;
+            border: 1px solid var(--border);
+            height: 38px
+        }
+
+        .dice-container,
+        .shuffle-round-container {
+            display: flex;
             width: 100%;
+            border: 1px solid var(--border);
+            border-radius: .6rem;
+            overflow: hidden;
+            margin-bottom: 1rem
+        }
+
+        #shuffleButton {
+            flex-grow: 1;
+            border: 0;
+            padding: .7rem 1rem;
+            border-right: 1px solid var(--border);
+            min-width: 0
+        }
+
+        #roundCount {
+            width: 5rem;
+            border: 0;
+            text-align: center;
+            padding: .7rem .5rem;
+            font-size: 1rem;
+            outline: 0
+        }
+
+        #diceType,
+        .dice-container button {
+            border: 0;
+            padding: .7rem 1rem;
+            font-size: 1rem;
+            cursor: pointer
+        }
+
+        #diceType {
+            flex: 2;
+            border-right: 1px solid var(--border)
+        }
+
+        .dice-container button {
+            flex: 1;
+            background: var(--primary);
+            color: #fff
+        }
+
+        .pref-container {
+            display: flex;
+            gap: 0;
+            margin-bottom: .5rem
+        }
+
+        .pref-container select:not(:last-child) {
+            border-right: none
+        }
+
+        .pref-container select:first-child {
+            border-top-left-radius: .6rem;
+            border-bottom-left-radius: .6rem
+        }
+
+        .pref-container select:last-child {
+            border-top-right-radius: .6rem;
+            border-bottom-right-radius: .6rem
+        }
+
+        .pref-button-container {
+            margin-top: .3rem;
+            max-width: 100%
+        }
+
+        .pref-button-container button {
+            width: 100%;
+            padding: .5rem 1rem;
+            font-size: 1rem;
+            border-radius: .6rem;
+            background: var(--primary);
+            color: #fff;
+            cursor: pointer;
+            border: 1px solid var(--border)
         }
     </style>
 </head>
@@ -618,9 +729,10 @@
     <div class="teams-top-container">
         <div class="teams-grid" id="shuffleResults"></div>
     </div>
-    <button id="shuffleButton" onclick="shuffleTeams()">
-        Shuffle
-    </button>
+    <div class="shuffle-round-container">
+        <button id="shuffleButton" onclick="shuffleTeams()">Shuffle</button>
+        <input type="number" id="roundCount" min="1" value="1" />
+    </div>
     <div class="container">
         <div class="box">
             <h2>Spieler</h2>
@@ -654,36 +766,38 @@
                     berücksichtigen</label><br>
                 <label><input type="checkbox" id="useTeamPrefs" checked> Team-Präferenzen berücksichtigen</label>
             </div>
-            <label for="roundCount">Anzahl Runden:</label>
-            <input type="number" id="roundCount" min="1" value="1" />
+
         </div>
 
         <div class="box">
             <h2>Teams</h2>
             <div id="teamsConfig"></div>
             <h2>Zufallswürfel</h2>
-            <select id="diceType">
-                <option value="2">Münze (D2)</option>
-                <option value="6">Würfel D6</option>
-                <option value="12">Würfel D12</option>
-                <option value="20">Würfel D20</option>
-                <option value="100">Würfel D100</option>
-            </select>
-            <br>
-            <button onclick="rollDice()">Würfeln</button>
+            <div class="dice-container">
+                <select id="diceType">
+                    <option value="2">Münze (D2)</option>
+                    <option value="6">Würfel D6</option>
+                    <option value="12">Würfel D12</option>
+                    <option value="20">Würfel D20</option>
+                    <option value="100">Würfel D100</option>
+                </select>
+                <button onclick="rollDice()">Würfeln</button>
+            </div>
             <div id="diceResult" style="margin-top: 10px; font-size: 1em;"></div>
         </div>
 
         <div class="box">
-            <select id="prefPlayer"></select>
-            <select id="prefType">
-                <option value="with">Mit Spieler</option>
-                <option value="notwith">Nicht mit Spieler</option>
-                <option value="in">In Team</option>
-                <option value="notin">Nicht in Team</option>
-            </select>
-            <select id="prefTarget"></select>
-            <button onclick="addPreference()">Hinzufügen</button>
+            <div class="pref-container">
+                <select id="prefPlayer"></select>
+                <select id="prefType">
+                    <option value="positiv">+</option>
+                    <option value="negativ">-</option>
+                </select>
+                <select id="prefTarget"></select>
+            </div>
+            <div class="pref-button-container">
+                <button onclick="addPreference()">Hinzufügen</button>
+            </div>
             <h3>Spieler-Präferenzen</h3>
             <ul id="playerPreferencesList"></ul>
 
@@ -765,20 +879,17 @@
                 div.style.position = "relative";
                 div.textContent = `${p.name} (P${p.pool})`;
 
-                // Toggle Aktivität bei Klick
                 div.onclick = () => {
                     players[i].active = !players[i].active;
                     renderPlayers();
                 };
 
-                // Pool wechseln bei Rechtsklick
                 div.oncontextmenu = (e) => {
                     e.preventDefault();
                     players[i].pool = (players[i].pool % 4) + 1;
                     renderPlayers();
                 };
 
-                // ❌ Löschen-Button
                 const removeBtn = document.createElement("span");
                 removeBtn.textContent = "❌";
                 removeBtn.style.position = "absolute";
@@ -792,12 +903,11 @@
                 removeBtn.onclick = (e) => {
                     e.stopPropagation();
                     if (confirm(`Spieler "${p.name}" wirklich löschen?`)) {
-                        // Spieler & zugehörige Präferenzen löschen
+
                         players.splice(i, 1);
                         playerPrefs = playerPrefs.filter(pref => pref.player !== i && pref.target !== i);
                         teamPrefs = teamPrefs.filter(pref => pref.player !== i);
 
-                        // Re-indexierung der verbleibenden Präferenzen
                         playerPrefs.forEach(pref => {
                             if (pref.player > i) pref.player--;
                             if (pref.target > i) pref.target--;
@@ -821,7 +931,6 @@
             const container = document.getElementById("teamsConfig");
             container.innerHTML = "";
 
-            // Sortiere aktivierte Teams zuerst
             const sortedTeamIndexes = [...Array(teamNames.length).keys()].sort((a, b) => {
                 return (teamsActive[b] ? 1 : 0) - (teamsActive[a] ? 1 : 0);
             });
@@ -904,7 +1013,7 @@
             const usePlayerPrefs = document.getElementById("usePlayerPrefs").checked;
             const useTeamPrefs = document.getElementById("useTeamPrefs").checked;
             const roundCount = parseInt(document.getElementById("roundCount")?.value || "1");
-            const MAX_ATTEMPTS = 5000000;
+            const MAX_ATTEMPTS = 50000;
 
             const weights = {
                 1: usePoolWeights ? (parseInt(document.getElementById("weightP1").value) || 5) : 0,
@@ -921,7 +1030,7 @@
             const activePlayers = players.map((p, i) => ({ ...p, index: i })).filter(p => p.active);
             const teams = teamIndexes.map(i => ({ name: teamNames[i], color: teamColors[i], index: i }));
 
-            const pairCounter = {}; // z. B. { "Niklas|Rafa": 2 }
+            const pairCounter = {};
 
             const allRoundResults = [];
 
@@ -932,16 +1041,28 @@
             }
 
             function allPrefsSatisfied(teamMap) {
-                for (const team of Object.values(teamMap)) {
+                for (const [teamIndex, team] of Object.entries(teamMap)) {
                     const playerIndices = team.map(p => p.index);
+
                     for (const player of team) {
                         if (useTeamPrefs) {
+                            // Suche eine aktive Team-Präferenz für den Spieler
                             const tpref = teamPrefs.find(p => p.active && p.player === player.index);
                             if (tpref) {
-                                if (tpref.type === "in" && team.index !== tpref.teamIndex) return false;
-                                if (tpref.type === "notin" && team.index === tpref.teamIndex) return false;
+                                const target = tpref.target; // Ziel kann Spieler- oder Teamindex sein
+                                const isTargetPlayer = playerIndices.includes(target);
+                                const isTargetTeam = Number(teamIndex) === target;  // teamIndex aus entries ist string, target vermutlich number
+
+                                if (tpref.type === "positiv") {
+                                    // Präferenz soll erfüllt sein: Ziel muss im Team sein (Spieler) oder Team muss Zielteam sein
+                                    if (!(isTargetPlayer || isTargetTeam)) return false;
+                                } else if (tpref.type === "negativ") {
+                                    // Präferenz soll nicht erfüllt sein: Ziel darf nicht im Team sein (Spieler) und Team darf nicht Zielteam sein
+                                    if (isTargetPlayer || isTargetTeam) return false;
+                                }
                             }
                         }
+
                         if (usePlayerPrefs) {
                             const prefs = playerPrefs.filter(p => p.active && p.player === player.index);
                             for (const pref of prefs) {
@@ -998,7 +1119,7 @@
                         attempts++;
 
                         if (attempts % 1000 === 0) {
-                            shuffleBtn.textContent = `⏳ Runde ${round + 1}, Versuche: ${attempts}`;
+                            shuffleBtn.textContent = `⏳ Runde ${round + 1}/${roundCount}, Versuche: ${attempts}`;
                             await new Promise(res => setTimeout(res, 1));
                         }
 
@@ -1015,7 +1136,6 @@
                     continue;
                 }
 
-                // Beste Lösung nach Diversität und Team-Balance wählen
                 let best = validSolutions[0];
                 let bestScore = uniquePairScore(best) + calculateDeviation(best);
 
@@ -1027,7 +1147,6 @@
                     }
                 }
 
-                // Paarungen merken
                 for (const team of Object.values(best)) {
                     for (let i = 0; i < team.length; i++) {
                         for (let j = i + 1; j < team.length; j++) {
@@ -1040,7 +1159,6 @@
                 allRoundResults.push(best);
             }
 
-            // Anzeige vorbereiten
             const resultContainer = document.getElementById("shuffleResults");
             resultContainer.innerHTML = "";
 
@@ -1079,7 +1197,6 @@
             );
             window.currentWeights = { ...weights };
 
-            // Verlauf speichern
             const historySnapshot = {
                 rounds: JSON.parse(JSON.stringify(window.currentRounds)),
                 weights: { ...weights },
@@ -1262,7 +1379,6 @@
             const resultContainer = document.getElementById("shuffleResults");
             resultContainer.innerHTML = "";
 
-            // Neue Darstellung: Runden untereinander, Teams nebeneinander
             window.currentRounds.forEach((teams, roundIndex) => {
                 const roundWrapper = document.createElement("div");
                 roundWrapper.classList.add("round-container");
@@ -1291,7 +1407,7 @@
             forwardBtn.disabled = shuffleHistoryIndex >= shuffleHistory.length - 1;
 
             const total = shuffleHistory.length;
-            const current = shuffleHistoryIndex + 1; // menschlich gezählt ab 1
+            const current = shuffleHistoryIndex + 1;
 
             backBtn.title = `⬅️ Shuffle ${current} von ${total}`;
             forwardBtn.title = `➡️ Shuffle ${current} von ${total}`;
@@ -1340,7 +1456,6 @@
             icon.textContent = document.body.classList.contains("dark") ? "🌙" : "☀️";
         }
 
-        // Beim Laden: Zustand wiederherstellen
         window.addEventListener("DOMContentLoaded", () => {
             if (localStorage.getItem("darkMode") === "1") {
                 document.body.classList.add("dark");
