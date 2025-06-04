@@ -796,10 +796,57 @@
             font-size: 1.2rem;
             margin-bottom: 0.5rem;
         }
+
+        #customAlertContainer {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .custom-alert {
+            background-color: #f87171;
+            color: white;
+            padding: 1rem 1.2rem;
+            border-radius: 0.6rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            max-width: 300px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .custom-alert button {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
 <body>
+    <div id="customAlertContainer"></div>
     <div class="teams-top-container">
         <div class="teams-grid" id="shuffleResults"></div>
     </div>
@@ -919,6 +966,21 @@
         let players = defaultPlayers.map(p => ({ ...p, active: true }));
         let playerPrefs = [];
         let teamPrefs = [];
+
+        function showAlert(message, duration = 4000) {
+            const container = document.getElementById("customAlertContainer");
+            const alertBox = document.createElement("div");
+            alertBox.className = "custom-alert";
+            alertBox.textContent = message;
+
+            container.appendChild(alertBox);
+
+            setTimeout(() => {
+                if (container.contains(alertBox)) {
+                    container.removeChild(alertBox);
+                }
+            }, duration);
+        }
 
         function addPlayer() {
             const name = document.getElementById("newPlayerName").value.trim();
@@ -1054,7 +1116,7 @@
 
         function addPreference() {
             const p = parseInt(document.getElementById("prefPlayer").value);
-            const selectedType = document.getElementById("prefType").value; 
+            const selectedType = document.getElementById("prefType").value; // "positiv" oder "negativ"
             const tRaw = document.getElementById("prefTarget").value;
 
             const convertedTypePlayer = selectedType === "positiv" ? "with" : "notwith";
@@ -1066,14 +1128,14 @@
             } else {
                 const target = parseInt(tRaw);
                 if (p === target) {
-                    alert("Ein Spieler kann keine Präferenz mit sich selbst haben.");
+                    showAlert("Ein Spieler kann keine Präferenz mit sich selbst haben.");
                     return;
                 }
                 const alreadyExists = playerPrefs.some(pref =>
                     pref.player === p && pref.target === target && pref.type === convertedTypePlayer
                 );
                 if (alreadyExists) {
-                    alert("Diese Präferenz existiert bereits.");
+                    showAlert("Diese Präferenz existiert bereits.");
                     return;
                 }
                 playerPrefs.push({ player: p, target, type: convertedTypePlayer, active: true });
@@ -1128,6 +1190,7 @@
 
                     for (const player of team) {
                         if (useTeamPrefs) {
+                            // Suche eine aktive Team-Präferenz für den Spieler
                             const tpref = teamPrefs.find(p => p.active && p.player === player.index);
                             if (tpref) {
                                 const isTargetTeam = Number(teamIndex) === tpref.teamIndex;
@@ -1217,7 +1280,7 @@
                 }
 
                 if (validSolutions.length === 0) {
-                    alert(`Runde ${round + 1}: Keine gültige Lösung gefunden nach ${MAX_RETRIES} weiteren Versuchen.`);
+                    showAlert(`Runde ${round + 1}: Keine gültige Lösung gefunden nach ${MAX_RETRIES} weiteren Versuchen.`);
                     continue;
                 }
 
@@ -1353,23 +1416,32 @@
 
                 const ul = document.createElement("ul");
                 ul.dataset.teamIndex = teamIndex;
-                ul.ondragover = e => e.preventDefault();
-                ul.ondrop = e => {
+                div.ondragover = e => e.preventDefault();
+                div.ondrop = e => {
                     e.preventDefault();
                     const playerIndex = parseInt(e.dataTransfer.getData("text/plain"));
-                    const fromTeam = teams.find(t => t.players.some(p => p.index === playerIndex));
-                    const player = fromTeam.players.find(p => p.index === playerIndex);
+                    if (isNaN(playerIndex)) return;
 
-                    fromTeam.players = fromTeam.players.filter(p => p.index !== playerIndex);
-                    fromTeam.weight -= weights[player.pool];
+                    const playerTeam = teams.find(t => t.players.some(p => p.index === playerIndex));
+                    if (!playerTeam) return;
 
+                    const player = playerTeam.players.find(p => p.index === playerIndex);
+
+                    // Spieler entfernen aus altem Team
+                    playerTeam.players = playerTeam.players.filter(p => p.index !== playerIndex);
+                    playerTeam.weight -= weights[player.pool];
+
+                    // Spieler zum neuen Team hinzufügen
                     const newTeam = teams[teamIndex];
-                    newTeam.players.push(player);
-                    newTeam.weight += weights[player.pool];
+                    if (!newTeam.players.find(p => p.index === playerIndex)) {
+                        newTeam.players.push(player);
+                        newTeam.weight += weights[player.pool];
+                    }
 
                     renderDraggableTeams(teams, weights, container);
                     validatePreferences(teams);
                 };
+
 
                 team.players.forEach(p => {
                     const li = document.createElement("li");
@@ -1697,7 +1769,7 @@
             }
 
             if (validSolutions.length === 0) {
-                alert(`Runde ${roundIndex + 1}: Keine gültige Lösung gefunden.`);
+                showAlert(`Runde ${roundIndex + 1}: Keine gültige Lösung gefunden.`);
                 return;
             }
 
@@ -1732,6 +1804,7 @@
                 }
             }
 
+            // Update der Runde
             const newTeams = teamIndexes.map(index => ({
                 name: teamNames[index],
                 color: teamColors[index],
@@ -1742,6 +1815,7 @@
 
             window.currentRounds[roundIndex] = newTeams;
 
+            // UI aktualisieren
             const resultContainer = document.getElementById("shuffleResults");
             const roundWrappers = resultContainer.querySelectorAll(".round-container");
             const wrapper = roundWrappers[roundIndex];
