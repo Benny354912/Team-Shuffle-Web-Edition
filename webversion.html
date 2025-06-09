@@ -2028,7 +2028,7 @@
         document.getElementById("startPeer").onclick = () => {
             peer = new Peer();
             peer.on("open", id => {
-                const url = `https://htmlpreview.github.io/?https://github.com/Benny354912/Team-Shuffle-Web-Edition/blob/main/webversion.html#${id}`;
+                const url = `https://benny354912.github.io/Team-Shuffle-Web-Edition/webversion.html#${id}`;
                 const qr = new QRious({ element: document.getElementById("qrCanvas"), value: url, size: 200 });
                 showAlert("Peer gestartet: " + id);
             });
