@@ -10,6 +10,8 @@
 <head>
     <meta charset="UTF-8">
     <title>ProShuffler Web – Präferenzen</title>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <style>
         :root {
             --bg: #f8f9fa;
@@ -831,6 +833,24 @@
             font-weight: bold;
         }
 
+        .dragging {
+            opacity: 0.5;
+        }
+
+        .drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            background: #fff;
+            border: 2px dashed #aaa;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -841,6 +861,34 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        #qrCanvas {
+            margin-top: 1rem;
+        }
+
+        #p2pControls {
+            margin-top: 2rem;
+        }
+
+        #customAlertContainer {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 999;
+        }
+
+        .alert {
+            background: #10b981;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            margin: 0.5rem;
         }
     </style>
 </head>
@@ -934,6 +982,18 @@
     <div id="historyControls">
         <button id="historyBack" onclick="goBackInHistory()" title="Zurück">⏪</button>
         <button id="historyForward" onclick="goForwardInHistory()" title="Vor">⏩</button>
+    </div>
+    <h1>ProShuffler – P2P Shuffle Transfer</h1>
+    <div id="p2pControls">
+        <button id="startPeer">🔗 Verbindung starten (QR generieren)</button>
+        <canvas id="qrCanvas"></canvas>
+        <input type="text" id="connectToId" placeholder="Peer-ID eingeben..." />
+        <button id="connectBtn">➡️ Verbinden</button>
+        <div>
+            <button id="sendDataBtn">📤 Senden</button>
+            <button id="requestDataBtn">📥 Empfangen</button>
+        </div>
+        <div id="customAlertContainer"></div>
     </div>
     <footer style="text-align: center; padding: 1em; font-size: 0.9em;">
         &copy; 2025 Benny354912. Lizenziert unter der <a href="https://opensource.org/licenses/MIT"
@@ -1447,9 +1507,70 @@
                     const li = document.createElement("li");
                     li.draggable = true;
                     li.textContent = `${p.name} (P${p.pool})`;
-                    li.ondragstart = e => e.dataTransfer.setData("text/plain", p.index);
+                    li.dataset.playerIndex = p.index;
+
+                    li.ondragstart = e => {
+                        e.dataTransfer.setData("text/plain", p.index);
+                    };
+
+                    li.addEventListener("touchstart", e => {
+                        e.preventDefault();
+                        const touch = e.touches[0];
+
+                        const ghost = document.createElement("div");
+                        ghost.className = "drag-ghost";
+                        ghost.textContent = li.textContent;
+                        ghost.style.top = `${touch.clientY}px`;
+                        ghost.style.left = `${touch.clientX}px`;
+                        document.body.appendChild(ghost);
+                        li.dataset.ghostId = "ghost-player";
+
+                        const moveHandler = moveEvent => {
+                            const t = moveEvent.touches[0];
+                            ghost.style.top = `${t.clientY}px`;
+                            ghost.style.left = `${t.clientX}px`;
+                        };
+
+                        const endHandler = endEvent => {
+                            const t = endEvent.changedTouches[0];
+                            const target = document.elementFromPoint(t.clientX, t.clientY);
+                            const teamDiv = target?.closest(".team");
+
+                            const ghostEl = document.querySelector(".drag-ghost");
+                            if (ghostEl) ghostEl.remove();
+
+                            if (teamDiv) {
+                                const playerIndex = parseInt(li.dataset.playerIndex);
+                                const playerTeam = teams.find(t => t.players.some(p => p.index === playerIndex));
+                                if (!playerTeam) return;
+                                const player = playerTeam.players.find(p => p.index === playerIndex);
+                                const newTeamIndex = parseInt(teamDiv.dataset.teamIndex);
+                                const newTeam = teams[newTeamIndex];
+
+                                // Spieler verschieben
+                                playerTeam.players = playerTeam.players.filter(p => p.index !== playerIndex);
+                                playerTeam.weight -= weights[player.pool];
+                                if (!newTeam.players.find(p => p.index === playerIndex)) {
+                                    newTeam.players.push(player);
+                                    newTeam.weight += weights[player.pool];
+                                }
+
+                                renderDraggableTeams(teams, weights, container);
+                                validatePreferences(teams);
+                            }
+
+                            document.removeEventListener("touchmove", moveHandler);
+                            document.removeEventListener("touchend", endHandler);
+                        };
+
+                        document.addEventListener("touchmove", moveHandler, { passive: false });
+                        document.addEventListener("touchend", endHandler, { passive: false });
+                    }, { passive: false });
+                    // === TOUCH-DRAG-LOGIK ENDE ===
+
                     ul.appendChild(li);
                 });
+
 
                 div.appendChild(ul);
                 container.appendChild(div);
@@ -1833,6 +1954,127 @@
         renderPlayers();
         renderTeamsConfig();
         renderPreferenceSelectors();
+        let peer = null;
+        let conn = null;
+        const shuffleData = {
+            players: [],
+            playerPrefs: [],
+            teamPrefs: [],
+            teamsActive: [],
+            poolWeights: {},
+            roundCount: 1,
+            rounds: []
+        };
+
+        function showAlert(msg) {
+            const box = document.createElement("div");
+            box.className = "alert";
+            box.textContent = msg;
+            document.getElementById("customAlertContainer").appendChild(box);
+            setTimeout(() => box.remove(), 4000);
+        }
+
+        function exportCurrentData() {
+            return {
+                players,
+                playerPrefs,
+                teamPrefs,
+                teamsActive,
+                poolWeights: {
+                    1: document.getElementById("weightP1").value,
+                    2: document.getElementById("weightP2").value,
+                    3: document.getElementById("weightP3").value,
+                    4: document.getElementById("weightP4").value,
+                },
+                roundCount: document.getElementById("roundCount").value,
+                rounds: window.currentRounds || []
+            };
+        }
+
+        function importShuffleData(data) {
+            if (!confirm("Shuffle empfangen und importieren?")) return;
+            players = data.players;
+            playerPrefs = data.playerPrefs;
+            teamPrefs = data.teamPrefs;
+            teamsActive = data.teamsActive;
+
+            document.getElementById("weightP1").value = data.poolWeights[1];
+            document.getElementById("weightP2").value = data.poolWeights[2];
+            document.getElementById("weightP3").value = data.poolWeights[3];
+            document.getElementById("weightP4").value = data.poolWeights[4];
+            document.getElementById("roundCount").value = data.roundCount;
+
+            window.currentRounds = data.rounds;
+            renderPlayers();
+            renderTeamsConfig();
+            renderPreferenceSelectors();
+
+            // Anzeigen der empfangenen Runde
+            const resultContainer = document.getElementById("shuffleResults");
+            resultContainer.innerHTML = "";
+            data.rounds.forEach((teams, i) => {
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("round-container");
+                wrapper.innerHTML = `<h2>Importierte Runde ${i + 1}</h2>`;
+                const grid = document.createElement("div");
+                grid.className = "teams-grid";
+                wrapper.appendChild(grid);
+                resultContainer.appendChild(wrapper);
+                renderDraggableTeams(teams, data.poolWeights, grid);
+            });
+            showAlert("Shuffle importiert.");
+        }
+
+        document.getElementById("startPeer").onclick = () => {
+            peer = new Peer();
+            peer.on("open", id => {
+                const url = `https://htmlpreview.github.io/?https://github.com/Benny354912/Team-Shuffle-Web-Edition/blob/main/webversion.html#${id}`;
+                const qr = new QRious({ element: document.getElementById("qrCanvas"), value: url, size: 200 });
+                showAlert("Peer gestartet: " + id);
+            });
+
+            peer.on("connection", c => {
+                conn = c;
+                conn.on("data", data => {
+                    if (data === "request-shuffle") {
+                        conn.send(exportCurrentData());
+                    } else {
+                        importShuffleData(data);
+                    }
+                });
+            });
+        };
+
+        document.getElementById("connectBtn").onclick = () => {
+            const id = document.getElementById("connectToId").value.trim();
+            if (!id) return alert("Bitte Peer-ID eingeben.");
+            peer = new Peer();
+            conn = peer.connect(id);
+            conn.on("open", () => {
+                showAlert("Verbunden mit Peer: " + id);
+                conn.on("data", data => {
+                    importShuffleData(data);
+                });
+            });
+        };
+
+        document.getElementById("sendDataBtn").onclick = () => {
+            if (conn && conn.open) {
+                conn.send(exportCurrentData());
+                showAlert("Shuffle-Daten gesendet.");
+            } else {
+                alert("Keine Verbindung aktiv.");
+            }
+        };
+
+        document.getElementById("requestDataBtn").onclick = () => {
+            if (conn && conn.open) {
+                conn.send("request-shuffle");
+                showAlert("Anfrage gesendet.");
+            } else {
+                alert("Keine Verbindung aktiv.");
+            }
+        };
     </script>
 </body>
 
