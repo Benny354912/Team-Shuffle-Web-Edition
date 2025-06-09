@@ -9,6 +9,7 @@ Dierser Team Shuffler wurde für den eigenen gebrauch entwickelt. Für alle die 
 ## Live Demo
 
 Hier geht es zur Live [Demo](http://htmlpreview.github.io/?https://raw.githubusercontent.com/Benny354912/Team-Shuffle-Web-Edition/refs/heads/main/webversion.html).
+[DEMO](https://benny354912.github.io/Team-Shuffle-Web-Edition/webversion.html#5bb0b600-ef2c-4132-a07f-aefacc4ee3cd).
 
 ## Features
 
