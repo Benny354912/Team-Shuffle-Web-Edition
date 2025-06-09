@@ -10,8 +10,9 @@
 <head>
     <meta charset="UTF-8">
     <title>ProShuffler Web – Präferenzen</title>
-    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         :root {
             --bg: #f8f9fa;
@@ -863,32 +864,103 @@
             }
         }
 
-        #qrCanvas {
-            margin-top: 1rem;
+        .confirmation-popup {
+            background: #fff;
+            color: #333;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 90%;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            animation: fadeIn 0.3s ease;
         }
 
-        #p2pControls {
-            margin-top: 2rem;
+        .popup-message {
+            font-size: 1rem;
+            line-height: 1.5;
         }
 
-        #customAlertContainer {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 999;
+        .popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
         }
 
-        .alert {
-            background: #10b981;
+        .popup-button {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .popup-button.accept {
+            background-color: #2ecc71;
             color: white;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
         }
 
-        button {
-            padding: 0.5rem 1rem;
-            margin: 0.5rem;
+        .popup-button.accept:hover {
+            background-color: #27ae60;
+        }
+
+        .popup-button.reject {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .popup-button.reject:hover {
+            background-color: #ccc;
+        }
+
+        .round-button {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--primary);
+            color: #fff;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .round-button:hover {
+            background: #4f46e5;
+        }
+
+        /* Bei kompakter Ansicht alle Inhalte außer Header ausblenden */
+        #p2pMenu.compact .p2p-content {
+            display: none;
+        }
+
+        .qrcode-container {
+            align-items: center;
+            justify-items: center;
+            place-items: center;
+            display: inline-block;
+            box-sizing: border-box;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 0.75rem;
+            width: 192px;
+            height: 192px;
+            transition: transform 0.3s ease, cursor 0s;
+            position: relative;
+        }
+
+        /* Hover-Zoom und Cursor verstecken */
+        .qrcode-container:hover {
+            transform: scale(2);
+            cursor: none;
+            z-index: 10;
         }
     </style>
 </head>
@@ -983,28 +1055,62 @@
         <button id="historyBack" onclick="goBackInHistory()" title="Zurück">⏪</button>
         <button id="historyForward" onclick="goForwardInHistory()" title="Vor">⏩</button>
     </div>
-    <h1>ProShuffler – P2P Shuffle Transfer</h1>
-    <div id="p2pControls">
-        <button id="startPeer">🔗 Verbindung starten (QR generieren)</button>
-        <canvas id="qrCanvas"></canvas>
-        <input type="text" id="connectToId" placeholder="Peer-ID eingeben..." />
-        <button id="connectBtn">➡️ Verbinden</button>
-        <div>
-            <button id="sendDataBtn">📤 Senden</button>
-            <button id="requestDataBtn">📥 Empfangen</button>
+    <!-- <h1>ProShuffler – P2P Shuffle Transfer</h1> -->
+    <!-- P2P-Transfer Menü angepasst -->
+    <div class="p2p-menu compact" id="p2pMenu"
+        style="margin-top:1rem; padding:1rem; background:var(--card); border:1px solid var(--border); border-radius:0.5rem;">
+        <!-- Obere Leiste: Status links, runde Buttons rechts (wird zur Headline) -->
+        <div class="p2p-header" id="p2pHeader"
+            style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+            <div id="peerStatus" style="font-weight:bold;">
+                Status: <span id="peerStatusText">Nicht verbunden</span>
+            </div>
+            <div class="p2p-actions" style="display:flex; gap:0.5rem;">
+                <button class="round-button" onclick="sendShuffle(event)" title="Shuffle senden">📤</button>
+                <button class="round-button" onclick="requestShuffle(event)" title="Shuffle anfragen">📥</button>
+            </div>
         </div>
-        <div id="customAlertContainer"></div>
+        <!-- Alle weiteren Zeilen, werden bei "klein" ausgeblendet -->
+        <div class="p2p-content">
+            <!-- Peer-ID weiter unten -->
+            <center>
+                <div id="qrcode" class="qrcode-container" style="margin:1rem auto;"></div>
+            </center>
+            <div class="p2p-peerid" style="margin-top:1rem; font-weight:500;">
+                <strong>Eigene Peer-ID:</strong> <span id="myPeerId">Wird erstellt...</span>
+            </div>
+            <!-- QR-Code und manuelle Verbindung wie gehabt -->
+            <div class="p2p-connect" style="margin-top:1rem;">
+
+                <input type="text" id="manualPeerId" placeholder="Peer-ID vom Gegenüber"
+                    style="width:100%; padding:0.5rem; margin-top:0.5rem;" />
+                <button onclick="connectToPeerManual()" style="margin-top:0.5rem; width:100%;">Verbinden</button>
+            </div>
+            <div style="margin-top:1rem;">
+                <button onclick="startQrScanner()" style="width:100%;">📷 Peer-ID per QR-Scan</button>
+                <div style="margin-top:1rem;">
+                    <select id="cameraSelect" style="width:100%; margin-bottom:0.5rem;"></select>
+                    <button onclick="applySelectedCamera()" style="width:100%;">🎥 Kamera wechseln</button>
+                    <div id="qr-reader" style="width:100%; max-width:80%; margin-top:1rem;"></div>
+                </div>
+            </div>
+        </div>
     </div>
     <footer style="text-align: center; padding: 1em; font-size: 0.9em;">
         &copy; 2025 Benny354912. Lizenziert unter der <a href="https://opensource.org/licenses/MIT"
             target="_blank">MIT-Lizenz</a>.
     </footer>
     <script>
+
         console.log("Dieser Code ist unter der MIT-Lizenz lizenziert.");
         console.log("© 2025 Benny354912. Weitere Informationen: https://opensource.org/licenses/MIT");
         let shuffleHistory = [];
         let shuffleHistoryIndex = -1;
         const MAX_HISTORY = 100;
+        let html5QrScanner;
+        let availableCameras = [];
+        let selectedCameraId = null;
+
 
         const defaultPlayers = [
             { name: "Niklas", pool: 1 },
@@ -1041,6 +1147,120 @@
                 }
             }, duration);
         }
+
+
+        /* CSS Styles */
+        const style = document.createElement('style');
+        style.textContent = `
+  #customAlertContainer {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 10000;
+  }
+
+  .custom-alert {
+    background: #ffffff;
+    color: #333333;
+    padding: 1rem 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 280px;
+    max-width: 360px;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .custom-alert__message {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .custom-alert__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+
+  .custom-alert__btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out;
+  }
+
+  .custom-alert__btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .custom-alert__btn--accept {
+    background: #2d9cdb;
+    color: #ffffff;
+  }
+
+  .custom-alert__btn--reject {
+    background: #eb5757;
+    color: #ffffff;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+`;
+        document.head.appendChild(style);
+
+        /**
+         * Displays a modern confirmation popup.
+         * Automatically rejects after 30 seconds if no action is taken.
+         * @param {string} message - The message to display.
+         * @param {function} onAccept - Callback for when user accepts.
+         * @param {function} onReject - Callback for when user rejects or timeout.
+         */
+        function showConfirmationPopup(message, onAccept, onReject) {
+            const container = document.getElementById("customAlertContainer");
+
+            const popup = document.createElement("div");
+            popup.className = "confirmation-popup";
+
+            const messageDiv = document.createElement("div");
+            messageDiv.className = "popup-message";
+            messageDiv.textContent = message;
+
+            const buttonContainer = document.createElement("div");
+            buttonContainer.className = "popup-buttons";
+
+            const acceptBtn = document.createElement("button");
+            acceptBtn.className = "popup-button accept";
+            acceptBtn.textContent = "Annehmen";
+            acceptBtn.onclick = () => {
+                container.removeChild(popup);
+                onAccept();
+            };
+
+            const rejectBtn = document.createElement("button");
+            rejectBtn.className = "popup-button reject";
+            rejectBtn.textContent = "Ablehnen";
+            rejectBtn.onclick = () => {
+                container.removeChild(popup);
+                if (onReject) onReject();
+            };
+
+            buttonContainer.appendChild(rejectBtn);
+            buttonContainer.appendChild(acceptBtn);
+            popup.appendChild(messageDiv);
+            popup.appendChild(buttonContainer);
+            container.appendChild(popup);
+        }
+
 
         function addPlayer() {
             const name = document.getElementById("newPlayerName").value.trim();
@@ -1954,128 +2174,307 @@
         renderPlayers();
         renderTeamsConfig();
         renderPreferenceSelectors();
-        let peer = null;
-        let conn = null;
-        const shuffleData = {
-            players: [],
-            playerPrefs: [],
-            teamPrefs: [],
-            teamsActive: [],
-            poolWeights: {},
-            roundCount: 1,
-            rounds: []
-        };
 
-        function showAlert(msg) {
-            const box = document.createElement("div");
-            box.className = "alert";
-            box.textContent = msg;
-            document.getElementById("customAlertContainer").appendChild(box);
-            setTimeout(() => box.remove(), 4000);
+
+
+        let peer;
+        let conn;
+
+        function showCustomPopup(text) {
+            showAlert(text);  // nutzt dein bestehendes Alerts-System
         }
 
-        function exportCurrentData() {
-            return {
-                players,
-                playerPrefs,
-                teamPrefs,
-                teamsActive,
-                poolWeights: {
-                    1: document.getElementById("weightP1").value,
-                    2: document.getElementById("weightP2").value,
-                    3: document.getElementById("weightP3").value,
-                    4: document.getElementById("weightP4").value,
-                },
-                roundCount: document.getElementById("roundCount").value,
-                rounds: window.currentRounds || []
-            };
-        }
-
-        function importShuffleData(data) {
-            if (!confirm("Shuffle empfangen und importieren?")) return;
-            players = data.players;
-            playerPrefs = data.playerPrefs;
-            teamPrefs = data.teamPrefs;
-            teamsActive = data.teamsActive;
-
-            document.getElementById("weightP1").value = data.poolWeights[1];
-            document.getElementById("weightP2").value = data.poolWeights[2];
-            document.getElementById("weightP3").value = data.poolWeights[3];
-            document.getElementById("weightP4").value = data.poolWeights[4];
-            document.getElementById("roundCount").value = data.roundCount;
-
-            window.currentRounds = data.rounds;
-            renderPlayers();
-            renderTeamsConfig();
-            renderPreferenceSelectors();
-
-            // Anzeigen der empfangenen Runde
-            const resultContainer = document.getElementById("shuffleResults");
-            resultContainer.innerHTML = "";
-            data.rounds.forEach((teams, i) => {
-                const wrapper = document.createElement("div");
-                wrapper.classList.add("round-container");
-                wrapper.innerHTML = `<h2>Importierte Runde ${i + 1}</h2>`;
-                const grid = document.createElement("div");
-                grid.className = "teams-grid";
-                wrapper.appendChild(grid);
-                resultContainer.appendChild(wrapper);
-                renderDraggableTeams(teams, data.poolWeights, grid);
+        function generateQRCode(text) {
+            const container = document.getElementById("qrcode");
+            container.innerHTML = "";
+            new QRCode(container, {
+                text,
+                width: 128,
+                height: 128,
             });
-            showAlert("Shuffle importiert.");
         }
 
-        document.getElementById("startPeer").onclick = () => {
-            peer = new Peer();
-            peer.on("open", id => {
-                const url = `https://benny354912.github.io/Team-Shuffle-Web-Edition/webversion.html#${id}`;
-                const qr = new QRious({ element: document.getElementById("qrCanvas"), value: url, size: 200 });
-                showAlert("Peer gestartet: " + id);
+        function initP2PConnection() {
+            const urlHash = window.location.hash;
+
+            peer = new Peer(undefined, {
+                host: '0.peerjs.com',
+                port: 443,
+                path: '/',
+                secure: true,
+                config: {
+                    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+                }
             });
 
-            peer.on("connection", c => {
-                conn = c;
-                conn.on("data", data => {
-                    if (data === "request-shuffle") {
-                        conn.send(exportCurrentData());
-                    } else {
-                        importShuffleData(data);
+            peer.on('open', (id) => {
+                document.getElementById("myPeerId").textContent = id;
+
+                const myURL = `${location.origin}${location.pathname}#peerid-${id}`;
+                generateQRCode(myURL);
+
+                if (urlHash.startsWith("#peerid-")) {
+                    const targetId = urlHash.replace("#peerid-", "").trim();
+                    document.getElementById("manualPeerId").value = targetId;
+                    connectToPeer(targetId);
+                }
+            });
+
+            peer.on('connection', (incoming) => {
+                conn = incoming;
+                conn.on('open', () => {
+                    updatePeerStatus(`✅ Verbunden mit: ${conn.peer}`);
+                    conn.send("Willkommen bei ProShuffler!");
+                });
+                conn.on('data', (data) => {
+                    try {
+                        if (typeof data === "object" && data.type) {
+                            switch (data.type) {
+                                case "shuffle-data":
+                                    confirmReceive(data.data);
+                                    break;
+
+                                case "request-shuffle":
+                                    sendShuffle();
+                                    break;
+
+                                default:
+                                    showAlert(`📩 Unbekannter Typ: ${data.type}`);
+                            }
+                        } else {
+                            showAlert(`📩 Nachricht erhalten: ${JSON.stringify(data)}`);
+                        }
+                    } catch (err) {
+                        console.error("Fehler beim Verarbeiten der Nachricht:", err);
+                        showAlert("❌ Fehler beim Empfang.");
                     }
                 });
             });
-        };
 
-        document.getElementById("connectBtn").onclick = () => {
-            const id = document.getElementById("connectToId").value.trim();
-            if (!id) return alert("Bitte Peer-ID eingeben.");
-            peer = new Peer();
-            conn = peer.connect(id);
-            conn.on("open", () => {
-                showAlert("Verbunden mit Peer: " + id);
-                conn.on("data", data => {
-                    importShuffleData(data);
-                });
+            peer.on('error', (err) => {
+                console.error("PeerJS Fehler:", err);
+                updatePeerStatus(`❌ Fehler: ${err.type}`);
             });
-        };
+        }
 
-        document.getElementById("sendDataBtn").onclick = () => {
-            if (conn && conn.open) {
-                conn.send(exportCurrentData());
-                showAlert("Shuffle-Daten gesendet.");
-            } else {
-                alert("Keine Verbindung aktiv.");
-            }
-        };
+        function connectToPeer(peerId) {
+            if (!peerId) return;
+            conn = peer.connect(peerId);
+            conn.on('open', () => {
+                updatePeerStatus(`✅ Verbunden mit: ${peerId}`);
+                conn.send("Hallo vom Client B!");
+            });
+            conn.on('data', (data) => {
+                try {
+                    if (typeof data === "object" && data.type) {
+                        switch (data.type) {
+                            case "shuffle-data":
+                                confirmReceive(data.data);
+                                break;
 
-        document.getElementById("requestDataBtn").onclick = () => {
-            if (conn && conn.open) {
-                conn.send("request-shuffle");
-                showAlert("Anfrage gesendet.");
-            } else {
-                alert("Keine Verbindung aktiv.");
+                            case "request-shuffle":
+                                sendShuffle();
+                                break;
+
+                            default:
+                                showAlert(`📩 Unbekannter Typ: ${data.type}`);
+                        }
+                    } else {
+                        showAlert(`📩 Nachricht erhalten: ${JSON.stringify(data)}`);
+                    }
+                } catch (err) {
+                    console.error("Fehler beim Verarbeiten der Nachricht:", err);
+                    showAlert("❌ Fehler beim Empfang.");
+                }
+            });
+        }
+
+        function connectToPeerManual() {
+            const id = document.getElementById("manualPeerId").value.trim();
+            if (id) connectToPeer(id);
+        }
+
+        function startQrScanner() {
+            const qrReader = document.getElementById("qr-reader");
+            qrReader.innerHTML = "";
+
+            const cameraSelect = document.getElementById("cameraSelect");
+            cameraSelect.innerHTML = "";
+
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length) {
+                    availableCameras = devices;
+                    selectedCameraId = devices[0].id;
+
+                    // Fülle Dropdown
+                    devices.forEach((device, index) => {
+                        const option = document.createElement("option");
+                        option.value = device.id;
+                        option.text = device.label || `Kamera ${index + 1}`;
+                        cameraSelect.appendChild(option);
+                    });
+
+                    // Starte Scanner mit erster Kamera
+                    html5QrScanner = new Html5Qrcode("qr-reader");
+                    html5QrScanner.start(
+                        selectedCameraId,
+                        { fps: 10, qrbox: 1000 },
+                        handleQrScan,
+                        () => { }
+                    );
+                } else {
+                    showAlert("❌ Keine Kamera gefunden.");
+                }
+            }).catch(err => {
+                showAlert("❌ Kamera konnte nicht geladen werden.");
+                console.error(err);
+            });
+        }
+
+        function applySelectedCamera() {
+            const newId = document.getElementById("cameraSelect").value;
+            if (html5QrScanner && newId !== selectedCameraId) {
+                html5QrScanner.stop().then(() => {
+                    selectedCameraId = newId;
+                    html5QrScanner.start(
+                        selectedCameraId,
+                        { fps: 10, qrbox: 1000 },
+                        handleQrScan,
+                        () => { }
+                    );
+                }).catch(err => {
+                    showAlert("❌ Fehler beim Wechseln der Kamera.");
+                    console.error(err);
+                });
             }
-        };
+        }
+
+        function handleQrScan(qrCodeMessage) {
+            if (qrCodeMessage.startsWith("http") && qrCodeMessage.includes("#peerid-")) {
+                const peerId = qrCodeMessage.split("#peerid-")[1].trim();
+                document.getElementById("manualPeerId").value = peerId;
+                connectToPeer(peerId);
+                html5QrScanner.stop().then(() => {
+                    document.getElementById("qr-reader").innerHTML = "";
+                });
+            } else {
+                showAlert("⚠️ Ungültiger QR-Code");
+            }
+        }
+
+        function updatePeerStatus(msg) {
+            document.getElementById("peerStatus").textContent = msg;
+        }
+
+        function sendShuffle() {
+            event.stopPropagation();
+            if (!conn || !conn.open) {
+                showAlert("❌ Keine Verbindung zum Peer.");
+                return;
+            }
+
+            const payload = {
+                type: "shuffle-data",
+                data: {
+                    players,
+                    playerPrefs,
+                    teamPrefs,
+                    teamsActive,
+                    shuffleHistory: [JSON.parse(JSON.stringify(window.currentRounds))],
+                    weights: window.currentWeights,
+                    roundCount: parseInt(document.getElementById("roundCount").value),
+                    settings: {
+                        usePoolWeights: document.getElementById("usePoolWeights").checked,
+                        usePlayerPrefs: document.getElementById("usePlayerPrefs").checked,
+                        useTeamPrefs: document.getElementById("useTeamPrefs").checked
+                    }
+                }
+            };
+
+            conn.send(payload);
+            showCustomPopup("✅ Shuffle gesendet!");
+        }
+
+        function requestShuffle() {
+            event.stopPropagation();
+            if (!conn || !conn.open) {
+                showAlert("❌ Keine Verbindung zum Peer.");
+                return;
+            }
+            conn.send({ type: "request-shuffle" });
+            showCustomPopup("📩 Shuffle wurde angefragt.");
+        }
+
+        function confirmReceive(data) {
+            showConfirmationPopup("📥 Shuffle-Daten empfangen. Annehmen?", () => {
+                players = data.players || players;
+                playerPrefs = data.playerPrefs || [];
+                teamPrefs = data.teamPrefs || [];
+                teamsActive = [...(data.teamsActive || [])];
+                window.currentRounds = data.shuffleHistory?.[0] || [];
+                window.currentWeights = data.weights || {};
+
+                if (data.settings) {
+                    document.getElementById("usePoolWeights").checked = data.settings.usePoolWeights;
+                    document.getElementById("usePlayerPrefs").checked = data.settings.usePlayerPrefs;
+                    document.getElementById("useTeamPrefs").checked = data.settings.useTeamPrefs;
+                }
+
+                renderPlayers();
+                renderTeamsConfig();
+                renderPreferenceSelectors();
+
+                const resultContainer = document.getElementById("shuffleResults");
+                resultContainer.innerHTML = "";
+
+                window.currentRounds.forEach((teams, roundIndex) => {
+                    const roundWrapper = document.createElement("div");
+                    roundWrapper.classList.add("round-container");
+
+                    const roundTitle = document.createElement("h2");
+                    roundTitle.textContent = `Empfangen – Runde ${roundIndex + 1}`;
+                    roundWrapper.appendChild(roundTitle);
+
+                    const teamGrid = document.createElement("div");
+                    teamGrid.classList.add("teams-grid");
+                    roundWrapper.appendChild(teamGrid);
+                    resultContainer.appendChild(roundWrapper);
+
+                    renderDraggableTeams(teams, window.currentWeights, teamGrid);
+                });
+
+                shuffleHistory.push({
+                    rounds: JSON.parse(JSON.stringify(window.currentRounds)),
+                    weights: { ...window.currentWeights },
+                    players: JSON.parse(JSON.stringify(players)),
+                    playerPrefs: JSON.parse(JSON.stringify(playerPrefs)),
+                    teamPrefs: JSON.parse(JSON.stringify(teamPrefs)),
+                    teamsActive: [...teamsActive]
+                });
+
+                shuffleHistoryIndex = shuffleHistory.length - 1;
+                updateHistoryButtons();
+                validatePreferences(window.currentRounds[0] || []);
+                showAlert("✅ Shuffle übernommen");
+            }, () => {
+                showAlert("❌ Shuffle abgelehnt");
+            });
+        }
+
+        const menu = document.getElementById('p2pMenu');
+        const header = document.getElementById('p2pHeader');
+        header.addEventListener('click', () => {
+            menu.classList.toggle('compact');
+        });
+
+
+
+        window.addEventListener("DOMContentLoaded", () => {
+            initP2PConnection();
+        });
+
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 
 </html>
