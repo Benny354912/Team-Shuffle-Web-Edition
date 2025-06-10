@@ -1,0 +1,21 @@
+name: Prüfe CLA-Zustimmung
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  check-cla:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prüfe ob CLA-Zustimmung im PR-Text gesetzt ist
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prBody = context.payload.pull_request.body || "";
+            const consentGiven = prBody.includes("- [x] Ja, ich stimme zu") || prBody.includes("- [X] Ja, ich stimme zu");
+
+            if (!consentGiven) {
+              core.setFailed("Bitte bestätigen Sie die CLA-Zustimmung, indem Sie die Checkbox im PR-Text ankreuzen.");
+            }
