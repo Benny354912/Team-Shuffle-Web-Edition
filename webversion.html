@@ -1,7 +1,10 @@
 <!-- 
-  Dieser Code ist unter der MIT-Lizenz lizenziert.
-  Weitere Informationen finden Sie in der beigefügten LICENSE-Datei.
-  © 2025 Benny354912
+   © 2025 Benny354912
+ Name: Team Shuffle Web Edition
+ Version: v1.0.4
+ Lizenz: Benutzerdifinierte Lizenz
+ Urheber: Benny354912
+ Quelle: https://github.com/Benny354912/Team-Shuffle-Web-Edition
 -->
 
 <!DOCTYPE html>
@@ -13,6 +16,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --bg: #f8f9fa;
@@ -362,28 +367,6 @@
             }
         }
 
-        #shuffleButton.blue {
-            background-color: #007bff
-        }
-
-        #shuffleButton.blue .progress-bar,
-        #shuffleButton.green {
-            background-color: #28a745
-        }
-
-        #shuffleButton.green .progress-bar {
-            background-color: #007bff
-        }
-
-        .progress-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 5px;
-            width: 0%;
-            transition: width .2s ease
-        }
-
         #playerPreferencesList,
         #preferencesList,
         #teamPreferencesList {
@@ -524,6 +507,11 @@
             width: 100%
         }
 
+        #shuffleAddButton {
+            width: auto;
+        }
+
+        #shuffleAddButton,
         #roundCount,
         #shuffleButton {
             display: inline-block;
@@ -616,6 +604,7 @@
         }
 
         #diceType,
+        #shuffleAddButton,
         #shuffleButton {
             outline: 0
         }
@@ -639,6 +628,7 @@
 
         #diceType+button,
         #shuffleButton,
+        #shuffleAddButton,
         .pref-container button {
             background: var(--primary);
             color: #fff;
@@ -662,6 +652,12 @@
             border-radius: .6rem;
             overflow: hidden;
             margin-bottom: 1rem
+        }
+
+        #shuffleAddButton {
+            padding: .7rem 1rem;
+            border: 0;
+            border-right: 1px solid var(--border);
         }
 
         #shuffleButton {
@@ -936,7 +932,6 @@
             background: #4f46e5;
         }
 
-        /* Bei kompakter Ansicht alle Inhalte außer Header ausblenden */
         #p2pMenu.compact .p2p-content {
             display: none;
         }
@@ -956,11 +951,107 @@
             position: relative;
         }
 
-        /* Hover-Zoom und Cursor verstecken */
         .qrcode-container:hover {
             transform: scale(2);
             cursor: none;
             z-index: 10;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .popup-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            max-width: 300px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            font-family: inherit;
+        }
+
+        .popup-box h2 {
+            font-size: 1.2rem;
+            margin: 0 0 12px;
+            color: #333;
+            text-align: center;
+        }
+
+        .popup-box input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .popup-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .popup-actions button {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .popup-actions button:first-child {
+            background-color: #1e40af;
+            color: white;
+        }
+
+        .popup-actions button:last-child {
+            background-color: #f3f4f6;
+            color: #333;
+        }
+
+        .peer-connect-group {
+            display: flex;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .peer-connect-group input {
+            width: 80%;
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            outline: none;
+        }
+
+        .peer-connect-group button {
+            width: 20%;
+            min-width: 100px;
+            padding: 8px 16px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            background-color: #1e40af;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .peer-connect-group button:hover {
+            background-color: #1d4ed8;
         }
     </style>
 </head>
@@ -972,6 +1063,7 @@
     </div>
     <div class="shuffle-round-container">
         <button id="shuffleButton" onclick="shuffleTeams()">Shuffle</button>
+        <button id="shuffleAddButton" onclick="addShuffle()" title="Runde hinzufügen">+</button>
         <input type="number" id="roundCount" min="1" value="1" />
     </div>
     <div class="container">
@@ -1011,6 +1103,10 @@
                     berücksichtigen</label><br>
                 <label><input type="checkbox" id="useTeamPrefs" checked> Team-Präferenzen berücksichtigen</label>
             </div>
+            <h2>Export</h2>
+            <label><input type="checkbox" id="includePrefs" />Alle Infos (inkl. Präferenzen)</label>
+            <button onclick="handlePDFExport()">📄 PDF exportieren</button>
+
 
         </div>
 
@@ -1055,11 +1151,8 @@
         <button id="historyBack" onclick="goBackInHistory()" title="Zurück">⏪</button>
         <button id="historyForward" onclick="goForwardInHistory()" title="Vor">⏩</button>
     </div>
-    <!-- <h1>ProShuffler – P2P Shuffle Transfer</h1> -->
-    <!-- P2P-Transfer Menü angepasst -->
     <div class="p2p-menu compact" id="p2pMenu"
         style="margin-top:1rem; padding:1rem; background:var(--card); border:1px solid var(--border); border-radius:0.5rem;">
-        <!-- Obere Leiste: Status links, runde Buttons rechts (wird zur Headline) -->
         <div class="p2p-header" id="p2pHeader"
             style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
             <div id="peerStatus" style="font-weight:bold;">
@@ -1070,53 +1163,66 @@
                 <button class="round-button" onclick="requestShuffle(event)" title="Shuffle anfragen">📥</button>
             </div>
         </div>
-        <!-- Alle weiteren Zeilen, werden bei "klein" ausgeblendet -->
         <div class="p2p-content">
-            <!-- Peer-ID weiter unten -->
             <center>
                 <div id="qrcode" class="qrcode-container" style="margin:1rem auto;"></div>
             </center>
             <div class="p2p-peerid" style="margin-top:1rem; font-weight:500;">
                 <strong>Eigene Peer-ID:</strong> <span id="myPeerId">Wird erstellt...</span>
+                <button class="round-button" onclick="copyMyId()" title="ID kopieren" style="padding: 4px;">
+                    📋
+                </button>
+                <button class="round-button" onclick="regenerateMyId()" title="Neue ID erzeugen" style="padding: 4px;">
+                    🔄
+                </button>
             </div>
-            <!-- QR-Code und manuelle Verbindung wie gehabt -->
             <div class="p2p-connect" style="margin-top:1rem;">
-
-                <input type="text" id="manualPeerId" placeholder="Peer-ID vom Gegenüber"
-                    style="width:100%; padding:0.5rem; margin-top:0.5rem;" />
-                <button onclick="connectToPeerManual()" style="margin-top:0.5rem; width:100%;">Verbinden</button>
+                <div class="peer-connect-group">
+                    <input type="text" id="manualPeerId" placeholder="Peer-ID vom Gegenüber"
+                        style="width:100%; padding:0.5rem; margin-top:0.5rem;" />
+                    <button id="connectButton" onclick="connectToPeerManual()">Verbinden</button>
+                </div>
             </div>
             <div style="margin-top:1rem;">
                 <button onclick="startQrScanner()" style="width:100%;">📷 Peer-ID per QR-Scan</button>
                 <div style="margin-top:1rem;">
-                    <select id="cameraSelect" style="width:100%; margin-bottom:0.5rem;"></select>
-                    <button onclick="applySelectedCamera()" style="width:100%;">🎥 Kamera wechseln</button>
-                    <div id="qr-reader" style="width:100%; max-width:80%; margin-top:1rem;"></div>
+                    <button id="switchCameraBtn" onclick="switchCamera()">Kamera wechseln</button>
+                    <div id="qr-reader" style="width:100%; max-width:100%; margin-top:1rem;"></div>
                 </div>
             </div>
         </div>
     </div>
     <footer style="text-align: center; padding: 1em; font-size: 0.9em;">
-        &copy; 2025 Benny354912. Lizenziert unter der <a href="https://opensource.org/licenses/MIT"
-            target="_blank">MIT-Lizenz</a>.
+        &copy; 2025 Benny354912. Lizenziert unter der <a href="https://github.com/Benny354912/Team-Shuffle-Web-Edition/blob/b664cfb1c52ea8fe1d6139f8e9228ded896d269b/LICENSE.md"
+            target="_blank">Benutzerdifinierten Lizenz</a>.
     </footer>
+    <div id="gotoPopup" style="display: none;" class="popup-overlay">
+        <div class="popup-box">
+            <h2>Zu Shuffle springen</h2>
+            <input type="number" id="gotoInput" min="1" placeholder="Shuffle-Nr." />
+            <div class="popup-actions">
+                <button onclick="confirmGoto()">Springen</button>
+                <button onclick="closeGotoPopup()">Abbrechen</button>
+            </div>
+        </div>
+    </div>
     <script>
 
-        console.log("Dieser Code ist unter der MIT-Lizenz lizenziert.");
-        console.log("© 2025 Benny354912. Weitere Informationen: https://opensource.org/licenses/MIT");
+        console.log("Dieser Code ist unter der folgenden Projektlizenz lizenziert.");
+        console.log("© 2025 Benny354912. Weitere Informationen: https://github.com/Benny354912/Team-Shuffle-Web-Edition/blob/b664cfb1c52ea8fe1d6139f8e9228ded896d269b/LICENSE.md");
         let shuffleHistory = [];
         let shuffleHistoryIndex = -1;
         const MAX_HISTORY = 100;
         let html5QrScanner;
         let availableCameras = [];
-        let selectedCameraId = null;
+        let selectedCameraIndex = 0;
 
 
         const defaultPlayers = [
             { name: "Niklas", pool: 1 },
             { name: "Rafa", pool: 1 },
             { name: "Marica", pool: 1 },
-            { name: "Benny", pool: 2 },
+            { name: "Benny👑", pool: 2 },
             { name: "Martin", pool: 2 },
             { name: "Nino", pool: 2 },
             { name: "Damian", pool: 2 },
@@ -1126,12 +1232,58 @@
             { name: "Moritz", pool: 3 }
         ];
 
+        const arrogant = ["Benny", "benny", "Benny354912", "benny354912"]
+
         const teamNames = ["Rot", "Blau", "Grün", "Gelb", "Lila", "Pink", "Cyan", "Orange"];
         const teamColors = ["#f88", "#88f", "#8f8", "#ff8", "#c8f", "#f8c", "#8ff", "#fc8"];
         let teamsActive = Array(8).fill(true);
         let players = defaultPlayers.map(p => ({ ...p, active: true }));
         let playerPrefs = [];
         let teamPrefs = [];
+        let autoScrollXInterval = null;
+        let scrollLock = false;
+
+        function startAutoScrollX(touchX, container) {
+            const scrollMargin = 60;
+            const scrollSpeed = 10;
+
+            stopAutoScrollX();
+
+            autoScrollXInterval = setInterval(() => {
+                const rect = container.getBoundingClientRect();
+
+                if (touchX - rect.left < scrollMargin) {
+                    container.scrollBy({ left: -scrollSpeed, behavior: 'auto' });
+                } else if (rect.right - touchX < scrollMargin) {
+                    container.scrollBy({ left: scrollSpeed, behavior: 'auto' });
+                }
+            }, 16); // ~60fps (soweit ich weiß)
+        }
+
+        function stopAutoScrollX() {
+            if (autoScrollXInterval) {
+                clearInterval(autoScrollXInterval);
+                autoScrollXInterval = null;
+            }
+        }
+
+        function lockVerticalScroll() {
+            scrollLock = true;
+            document.body.style.overflowY = 'hidden';
+            window.addEventListener('touchmove', preventVerticalScroll, { passive: false });
+        }
+
+        function unlockVerticalScroll() {
+            scrollLock = false;
+            document.body.style.overflowY = '';
+            window.removeEventListener('touchmove', preventVerticalScroll);
+        }
+
+        function preventVerticalScroll(e) {
+            if (scrollLock) {
+                e.preventDefault();
+            }
+        }
 
         function showAlert(message, duration = 4000) {
             const container = document.getElementById("customAlertContainer");
@@ -1148,8 +1300,6 @@
             }, duration);
         }
 
-
-        /* CSS Styles */
         const style = document.createElement('style');
         style.textContent = `
   #customAlertContainer {
@@ -1263,7 +1413,11 @@
 
 
         function addPlayer() {
-            const name = document.getElementById("newPlayerName").value.trim();
+            let name = document.getElementById("newPlayerName").value.trim();
+            if (name.includes("👑")) return showAlert("Computer sagt Nein!")
+            if (arrogant.includes(name)) {
+                name = name + "👑"
+            }
             const pool = parseInt(document.getElementById("newPlayerPool").value);
             if (name) {
                 players.push({ name, pool, active: true });
@@ -1396,7 +1550,7 @@
 
         function addPreference() {
             const p = parseInt(document.getElementById("prefPlayer").value);
-            const selectedType = document.getElementById("prefType").value; // "positiv" oder "negativ"
+            const selectedType = document.getElementById("prefType").value;
             const tRaw = document.getElementById("prefTarget").value;
 
             const convertedTypePlayer = selectedType === "positiv" ? "with" : "notwith";
@@ -1423,12 +1577,86 @@
             renderPreferencesList();
         }
 
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
             return array;
+        }
+
+        async function addShuffle() {
+            const previousState = {
+                rounds: JSON.parse(JSON.stringify(window.currentRounds || [])),
+                weights: { ...window.currentWeights },
+                players: JSON.parse(JSON.stringify(players)),
+                playerPrefs: JSON.parse(JSON.stringify(playerPrefs)),
+                teamPrefs: JSON.parse(JSON.stringify(teamPrefs)),
+                teamsActive: [...teamsActive]
+            };
+
+            await shuffleTeams();
+            const newRounds = JSON.parse(JSON.stringify(window.currentRounds));
+
+            window.currentRounds = previousState.rounds.concat(newRounds);
+
+            const container = document.getElementById("shuffleResults");
+            container.innerHTML = "";
+            window.currentRounds.forEach((teamsList, idx) => {
+                const roundWrapper = document.createElement("div");
+                roundWrapper.classList.add("round-container");
+
+                const roundTitle = document.createElement("h2");
+                roundTitle.textContent = `Runde ${idx + 1}`;
+
+                const refreshBtn = document.createElement("button");
+                refreshBtn.textContent = "🔄";
+                refreshBtn.title = "Nur diese Runde neu mischen";
+                refreshBtn.onclick = () => reshuffleRound(idx);
+                refreshBtn.className = "refresh-button";
+                roundTitle.appendChild(refreshBtn);
+
+                const delBtn = document.createElement("button");
+                delBtn.textContent = "🗑️";
+                delBtn.title = "Lösche diese Runde";
+                delBtn.onclick = () => deleteRound(idx);
+                delBtn.className = "refresh-button";
+                roundTitle.appendChild(delBtn);
+
+                roundWrapper.appendChild(roundTitle);
+                roundWrapper.appendChild(roundTitle);
+                const teamGrid = document.createElement("div");
+                teamGrid.classList.add("teams-grid");
+                roundWrapper.appendChild(teamGrid);
+
+                renderDraggableTeams(teamsList, window.currentWeights, teamGrid);
+                container.appendChild(roundWrapper);
+            });
+
+            const combinedSnapshot = {
+                rounds: JSON.parse(JSON.stringify(window.currentRounds)),
+                weights: { ...window.currentWeights },
+                players: JSON.parse(JSON.stringify(players)),
+                playerPrefs: JSON.parse(JSON.stringify(playerPrefs)),
+                teamPrefs: JSON.parse(JSON.stringify(teamPrefs)),
+                teamsActive: [...teamsActive]
+            };
+            shuffleHistory.push(combinedSnapshot);
+            if (shuffleHistory.length > MAX_HISTORY) shuffleHistory.shift();
+            shuffleHistoryIndex = shuffleHistory.length - 1;
+            updateHistoryButtons();
+
+            localStorage.setItem("proshufflerState", JSON.stringify({
+                players,
+                playerPrefs,
+                teamPrefs,
+                teamsActive,
+                poolWeights: window.currentWeights,
+                roundCount: document.getElementById("roundCount").value,
+                shuffleHistory,
+                shuffleHistoryIndex
+            }));
         }
 
         async function shuffleTeams() {
@@ -1470,7 +1698,6 @@
 
                     for (const player of team) {
                         if (useTeamPrefs) {
-                            // Suche eine aktive Team-Präferenz für den Spieler
                             const tpref = teamPrefs.find(p => p.active && p.player === player.index);
                             if (tpref) {
                                 const isTargetTeam = Number(teamIndex) === tpref.teamIndex;
@@ -1609,8 +1836,16 @@
                 refreshBtn.onclick = () => reshuffleRound(i);
                 refreshBtn.className = "refresh-button";
 
+                const delBtn = document.createElement("button");
+                delBtn.textContent = "🗑️";
+                delBtn.title = "Lösche diese Runde";
+                delBtn.onclick = () => deleteRound(i);
+                delBtn.className = "refresh-button";
+
+
                 roundTitle.appendChild(titleText);
                 roundTitle.appendChild(refreshBtn);
+                roundTitle.appendChild(delBtn);
                 roundWrapper.appendChild(roundTitle);
 
                 roundWrapper.appendChild(roundTitle);
@@ -1707,11 +1942,9 @@
 
                     const player = playerTeam.players.find(p => p.index === playerIndex);
 
-                    // Spieler entfernen aus altem Team
                     playerTeam.players = playerTeam.players.filter(p => p.index !== playerIndex);
                     playerTeam.weight -= weights[player.pool];
 
-                    // Spieler zum neuen Team hinzufügen
                     const newTeam = teams[teamIndex];
                     if (!newTeam.players.find(p => p.index === playerIndex)) {
                         newTeam.players.push(player);
@@ -1747,12 +1980,16 @@
 
                         const moveHandler = moveEvent => {
                             const t = moveEvent.touches[0];
+                            startAutoScrollX(t.clientX, container);
+                            lockVerticalScroll();
                             ghost.style.top = `${t.clientY}px`;
                             ghost.style.left = `${t.clientX}px`;
                         };
 
                         const endHandler = endEvent => {
                             const t = endEvent.changedTouches[0];
+                            stopAutoScrollX();
+                            unlockVerticalScroll();
                             const target = document.elementFromPoint(t.clientX, t.clientY);
                             const teamDiv = target?.closest(".team");
 
@@ -1767,7 +2004,6 @@
                                 const newTeamIndex = parseInt(teamDiv.dataset.teamIndex);
                                 const newTeam = teams[newTeamIndex];
 
-                                // Spieler verschieben
                                 playerTeam.players = playerTeam.players.filter(p => p.index !== playerIndex);
                                 playerTeam.weight -= weights[player.pool];
                                 if (!newTeam.players.find(p => p.index === playerIndex)) {
@@ -1786,7 +2022,6 @@
                         document.addEventListener("touchmove", moveHandler, { passive: false });
                         document.addEventListener("touchend", endHandler, { passive: false });
                     }, { passive: false });
-                    // === TOUCH-DRAG-LOGIK ENDE ===
 
                     ul.appendChild(li);
                 });
@@ -1794,6 +2029,101 @@
 
                 div.appendChild(ul);
                 container.appendChild(div);
+            });
+
+            enableTeamSwap(teams, container, weights);
+        }
+
+        function swapTeamPlayers(teams, fromIndex, toIndex, weights, container) {
+            const teamA = teams[fromIndex];
+            const teamB = teams[toIndex];
+
+            const tempPlayers = teamA.players;
+            teamA.players = teamB.players;
+            teamB.players = tempPlayers;
+
+            teamA.weight = teamA.players.reduce((sum, p) => sum + weights[p.pool], 0);
+            teamB.weight = teamB.players.reduce((sum, p) => sum + weights[p.pool], 0);
+
+            renderDraggableTeams(teams, weights, container);
+            validatePreferences(teams);
+        }
+
+
+        function enableTeamSwap(teams, container, weights) {
+            const teamDivs = container.querySelectorAll('.team');
+
+            teamDivs.forEach(sourceDiv => {
+                const header = sourceDiv.querySelector('.team-name');
+                header.setAttribute('draggable', 'true');
+
+                header.addEventListener('dragstart', e => {
+                    e.stopPropagation();
+                    e.dataTransfer.setData('teamSwap', 'true');
+                    e.dataTransfer.setData('teamIndex', sourceDiv.dataset.teamIndex);
+                });
+
+                sourceDiv.addEventListener('dragover', e => {
+                    if (e.dataTransfer.getData('teamSwap') === 'true') {
+                        e.preventDefault();
+                        sourceDiv.style.border = '2px dashed #666';
+                    }
+                });
+
+                sourceDiv.addEventListener('dragleave', () => {
+                    sourceDiv.style.border = '';
+                });
+
+                sourceDiv.addEventListener('drop', e => {
+                    if (e.dataTransfer.getData('teamSwap') !== 'true') return;
+                    e.preventDefault();
+                    const fromIndex = parseInt(e.dataTransfer.getData('teamIndex'));
+                    const toIndex = parseInt(sourceDiv.dataset.teamIndex);
+                    sourceDiv.style.border = '';
+                    if (fromIndex === toIndex) return;
+                    swapTeamPlayers(teams, fromIndex, toIndex, weights, container);
+                });
+
+                header.addEventListener('touchstart', e => {
+                    const touch = e.touches[0];
+                    const startX = touch.clientX;
+                    const startY = touch.clientY;
+                    const ghost = document.createElement('div');
+                    ghost.className = 'drag-ghost';
+                    ghost.textContent = header.textContent;
+                    document.body.appendChild(ghost);
+
+                    const moveHandler = moveEvent => {
+                        const t = moveEvent.touches[0];
+                        startAutoScrollX(t.clientX, container);
+                        lockVerticalScroll();
+                        ghost.style.top = `${t.clientY}px`;
+                        ghost.style.left = `${t.clientX}px`;
+                    };
+
+                    const endHandler = endEvent => {
+                        const t = endEvent.changedTouches[0];
+                        stopAutoScrollX();
+                        unlockVerticalScroll();
+                        const target = document.elementFromPoint(t.clientX, t.clientY);
+                        const targetDiv = target?.closest('.team');
+
+                        ghost.remove();
+                        if (targetDiv) {
+                            const fromIndex = parseInt(sourceDiv.dataset.teamIndex);
+                            const toIndex = parseInt(targetDiv.dataset.teamIndex);
+                            if (fromIndex !== toIndex) {
+                                swapTeamPlayers(teams, fromIndex, toIndex, weights, container);
+                            }
+                        }
+
+                        document.removeEventListener('touchmove', moveHandler);
+                        document.removeEventListener('touchend', endHandler);
+                    };
+
+                    document.addEventListener('touchmove', moveHandler, { passive: false });
+                    document.addEventListener('touchend', endHandler, { passive: false });
+                }, { passive: false });
             });
         }
 
@@ -1902,6 +2232,20 @@
                 const roundTitle = document.createElement("h2");
                 roundTitle.textContent = `Runde ${roundIndex + 1}`;
                 roundWrapper.appendChild(roundTitle);
+
+                const refreshBtn = document.createElement("button");
+                refreshBtn.textContent = "🔄";
+                refreshBtn.title = "Nur diese Runde neu mischen";
+                refreshBtn.onclick = () => reshuffleRound(roundIndex);
+                refreshBtn.className = "refresh-button";
+                roundTitle.appendChild(refreshBtn);
+
+                const delBtn = document.createElement("button");
+                delBtn.textContent = "🗑️";
+                delBtn.title = "Lösche diese Runde";
+                delBtn.onclick = () => deleteRound(roundIndex);
+                delBtn.className = "refresh-button";
+                roundTitle.appendChild(delBtn);
 
                 const teamGrid = document.createElement("div");
                 teamGrid.classList.add("teams-grid");
@@ -2145,7 +2489,6 @@
                 }
             }
 
-            // Update der Runde
             const newTeams = teamIndexes.map(index => ({
                 name: teamNames[index],
                 color: teamColors[index],
@@ -2156,7 +2499,6 @@
 
             window.currentRounds[roundIndex] = newTeams;
 
-            // UI aktualisieren
             const resultContainer = document.getElementById("shuffleResults");
             const roundWrappers = resultContainer.querySelectorAll(".round-container");
             const wrapper = roundWrappers[roundIndex];
@@ -2181,7 +2523,11 @@
         let conn;
 
         function showCustomPopup(text) {
-            showAlert(text);  // nutzt dein bestehendes Alerts-System
+            showAlert(text); 
+        }
+
+        function generateRandomId() {
+            return "ps-" + Math.random().toString(36).substr(2, 9);
         }
 
         function generateQRCode(text) {
@@ -2195,9 +2541,11 @@
         }
 
         function initP2PConnection() {
+            const savedId = localStorage.getItem("myPeerId") || generateRandomId();
+            localStorage.setItem("myPeerId", savedId);
             const urlHash = window.location.hash;
 
-            peer = new Peer(undefined, {
+            peer = new Peer(savedId, {
                 host: '0.peerjs.com',
                 port: 443,
                 path: '/',
@@ -2225,6 +2573,7 @@
                 conn.on('open', () => {
                     updatePeerStatus(`✅ Verbunden mit: ${conn.peer}`);
                     conn.send("Willkommen bei ProShuffler!");
+                    localStorage.setItem("LastConnectedPeerID", conn.peer)
                 });
                 conn.on('data', (data) => {
                     try {
@@ -2250,6 +2599,16 @@
                     }
                 });
             });
+            peer.on('disconnected', () => {
+                updatePeerStatus("Peer wurde getrennt.");
+                showAlert("⚠️ Verbindung zum Peer verloren. Versuche erneut zu Verbinden...");
+
+                try {
+                    peer.reconnect(); // PeerJS reconnect automatisch mit letzter ID
+                } catch (e) {
+                    showAlert("Reconnect fehlgeschlagen: " + e);
+                }
+            })
 
             peer.on('error', (err) => {
                 console.error("PeerJS Fehler:", err);
@@ -2263,6 +2622,7 @@
             conn.on('open', () => {
                 updatePeerStatus(`✅ Verbunden mit: ${peerId}`);
                 conn.send("Hallo vom Client B!");
+                localStorage.setItem("LastConnectedPeerID", peerId);
             });
             conn.on('data', (data) => {
                 try {
@@ -2298,23 +2658,13 @@
             const qrReader = document.getElementById("qr-reader");
             qrReader.innerHTML = "";
 
-            const cameraSelect = document.getElementById("cameraSelect");
-            cameraSelect.innerHTML = "";
-
             Html5Qrcode.getCameras().then(devices => {
                 if (devices && devices.length) {
                     availableCameras = devices;
-                    selectedCameraId = devices[0].id;
+                    selectedCameraIndex = 0;
 
-                    // Fülle Dropdown
-                    devices.forEach((device, index) => {
-                        const option = document.createElement("option");
-                        option.value = device.id;
-                        option.text = device.label || `Kamera ${index + 1}`;
-                        cameraSelect.appendChild(option);
-                    });
+                    selectedCameraId = availableCameras[selectedCameraIndex].id;
 
-                    // Starte Scanner mit erster Kamera
                     html5QrScanner = new Html5Qrcode("qr-reader");
                     html5QrScanner.start(
                         selectedCameraId,
@@ -2331,22 +2681,23 @@
             });
         }
 
-        function applySelectedCamera() {
-            const newId = document.getElementById("cameraSelect").value;
-            if (html5QrScanner && newId !== selectedCameraId) {
-                html5QrScanner.stop().then(() => {
-                    selectedCameraId = newId;
-                    html5QrScanner.start(
-                        selectedCameraId,
-                        { fps: 10, qrbox: 1000 },
-                        handleQrScan,
-                        () => { }
-                    );
-                }).catch(err => {
-                    showAlert("❌ Fehler beim Wechseln der Kamera.");
-                    console.error(err);
-                });
-            }
+        function switchCamera() {
+            if (!html5QrScanner || availableCameras.length <= 1) return;
+
+            html5QrScanner.stop().then(() => {
+                selectedCameraIndex = (selectedCameraIndex + 1) % availableCameras.length;
+                selectedCameraId = availableCameras[selectedCameraIndex].id;
+
+                html5QrScanner.start(
+                    selectedCameraId,
+                    { fps: 10, qrbox: 1000 },
+                    handleQrScan,
+                    () => { }
+                );
+            }).catch(err => {
+                showAlert("❌ Fehler beim Kamerawechsel.");
+                console.error(err);
+            });
         }
 
         function handleQrScan(qrCodeMessage) {
@@ -2432,7 +2783,21 @@
                     roundWrapper.classList.add("round-container");
 
                     const roundTitle = document.createElement("h2");
-                    roundTitle.textContent = `Empfangen – Runde ${roundIndex + 1}`;
+                    roundTitle.textContent = `Runde ${roundIndex + 1}`;
+
+                    const refreshBtn = document.createElement("button");
+                    refreshBtn.textContent = "🔄";
+                    refreshBtn.title = "Nur diese Runde neu mischen";
+                    refreshBtn.onclick = () => reshuffleRound(roundIndex);
+                    refreshBtn.className = "refresh-button";
+                    roundTitle.appendChild(refreshBtn);
+
+                    const delBtn = document.createElement("button");
+                    delBtn.textContent = "🗑️";
+                    delBtn.title = "Lösche diese Runde";
+                    delBtn.onclick = () => deleteRound(roundIndex);
+                    delBtn.className = "refresh-button";
+                    roundTitle.appendChild(delBtn);
                     roundWrapper.appendChild(roundTitle);
 
                     const teamGrid = document.createElement("div");
@@ -2471,16 +2836,371 @@
 
         window.addEventListener("DOMContentLoaded", () => {
             initP2PConnection();
+            connectToPeer(localStorage.getItem("LastConnectedPeerID"));
         });
 
+        async function exportModernPDF(showPrefs = false) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF("p", "mm", "a4");
+            const margin = 10;
+            const spacing = 4;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const maxTeamWidth = 65;
+            const lineHeight = 5;
+            const teamTitleHeight = 8;
+            const fontSizeTitle = 6;
+            const fontSizePlayer = 12;
+
+            doc.setProperties({
+                title: "Shuffle - Rundenplan",
+                subject: "Ein Rundenplan der mit dem ProShuffle erstellt wurde.",
+                author: "Webshuffle Pro / Benny354912",
+                keywords: "Team, Shuffle, Training, Turnier, Spielplan, ProShuffler, Benny, Benny354912",
+                creator: "Webshuffle by Benny354912"
+            });
+
+
+            let y = margin;
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.text("ProShuffler – Rundenplan", margin, y);
+            y += 10;
+
+            const rounds = window.currentRounds || [];
+            const weights = window.currentWeights || {};
+
+            if (rounds.length === 0) {
+                showAlert("⚠️ Kein Shuffle zum Exportieren vorhanden.");
+                return;
+            }
+
+            rounds.forEach((round, roundIndex) => {
+                const nonEmptyTeams = round.filter(team => team.players.length > 0);
+                if (nonEmptyTeams.length === 0) return;
+
+                const teamBoxes = nonEmptyTeams.map(team => {
+                    doc.setFontSize(fontSizePlayer);
+                    doc.setFont("helvetica", "normal");
+                    const textWidths = team.players.map(p =>
+                        doc.getTextWidth(`- ${p.name} (P${p.pool})`)
+                    );
+                    const labelWidth = doc.getTextWidth(team.name) + 6;
+                    const maxWidth = Math.max(...textWidths, labelWidth) + 8;
+                    return {
+                        ...team,
+                        boxWidth: Math.min(maxWidth, 80)
+                    };
+                });
+
+                const teamHeights = teamBoxes.map(team =>
+                    teamTitleHeight + team.players.length * lineHeight + 6
+                );
+                const maxTeamHeight = Math.max(...teamHeights);
+
+                const availableWidth = pageWidth - 2 * margin;
+                const estimatedRows = Math.ceil(
+                    teamBoxes.reduce((w, t) => w + t.boxWidth + spacing, -spacing) / availableWidth
+                );
+                const teamsPerRow = Math.ceil(teamBoxes.length / estimatedRows);
+
+                const rows = [];
+                for (let i = 0; i < teamBoxes.length; i += teamsPerRow) {
+                    rows.push(teamBoxes.slice(i, i + teamsPerRow));
+                }
+
+                const rowHeights = rows.map(rowTeams => {
+                    const maxPlayers = Math.max(...rowTeams.map(t => t.players.length));
+                    return teamTitleHeight + maxPlayers * lineHeight + 6;
+                });
+
+                const contentHeight = rowHeights.reduce((sum, h) => sum + h, 0)
+                    + spacing * (rows.length - 1);
+
+                const headerHeight = teamTitleHeight + 4;
+                const footerPadding = 4;
+
+                const roundBoxHeight = headerHeight + contentHeight + footerPadding;
+                if (y + roundBoxHeight + 5 > 280) {
+                    doc.addPage();
+                    y = margin;
+                }
+
+                const roundBoxTopY = y;
+                doc.setDrawColor(100);
+                doc.setFillColor(255, 255, 255);
+                doc.roundedRect(
+                    margin,
+                    roundBoxTopY,
+                    pageWidth - 2 * margin,
+                    roundBoxHeight,
+                    3, 3,
+                    "S"
+                );
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(13);
+                doc.text(`Runde ${roundIndex + 1}`, margin + 1, roundBoxTopY + 6);
+
+                let yInner = roundBoxTopY + teamTitleHeight + 4;
+
+
+                rows.forEach(rowTeams => {
+                    const maxPlayersInRow = Math.max(...rowTeams.map(t => t.players.length));
+                    const uniformHeight = teamTitleHeight + maxPlayersInRow * lineHeight + 6;
+
+                    const totalRowWidth = rowTeams.reduce((sum, t) => sum + t.boxWidth + spacing, -spacing);
+                    let x = margin + (pageWidth - 2 * margin - totalRowWidth) / 2;
+
+                    rowTeams.forEach(team => {
+                        doc.setDrawColor(...hexToRgb(team.color));
+                        doc.roundedRect(x, yInner, team.boxWidth, uniformHeight, 2, 2, "S");
+                        doc.setFont("helvetica", "bold");
+                        doc.setFontSize(14);
+                        doc.setFillColor(...hexToRgb(team.color));
+                        doc.setTextColor(255, 255, 255);
+                        doc.roundedRect(
+                            x, yInner,
+                            team.boxWidth,
+                            teamTitleHeight,
+                            2, 2, "F"
+                        );
+                        const textWidth = doc.getTextWidth(team.name);
+                        const titleX = x + (team.boxWidth - textWidth) / 2;
+                        const titleY = yInner + teamTitleHeight / 2 + fontSizeTitle * 0.35;
+                        doc.text(team.name, titleX, titleY);
+
+                        const contentHeight = team.players.length * lineHeight;
+                        const startY = yInner + teamTitleHeight + 3
+                            + (uniformHeight - teamTitleHeight - 6 - contentHeight) / 2;
+
+                        doc.setTextColor(0, 0, 0);
+                        doc.setFontSize(fontSizePlayer);
+                        let py = startY;
+                        team.players.forEach(player => {
+                            doc.text(`- ${player.name} (P${player.pool})`, x + 3, py);
+                            py += lineHeight;
+                        });
+
+                        x += team.boxWidth + spacing;
+                    });
+
+                    yInner += uniformHeight + spacing;
+                });
+                y = roundBoxTopY + roundBoxHeight + spacing;
+            });
+
+            if (showPrefs) {
+                const playerPrefCount = playerPrefs.length;
+                const teamPrefCount = teamPrefs.length;
+                const prefHeightEstimate = (playerPrefCount + teamPrefCount) * 6 + 28;
+
+                if (y + prefHeightEstimate > 280) {
+                    doc.addPage();
+                    y = margin;
+                }
+
+                const boxWidth = pageWidth - 2 * margin;
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(13);
+                doc.text("Präferenzen", margin + 1, y + 5);
+                y += 8;
+
+                const playerPrefBoxHeight = playerPrefCount * 6 + 12;
+                doc.setDrawColor(180);
+                doc.setFillColor(255, 255, 255);
+                doc.roundedRect(margin, y, boxWidth, playerPrefBoxHeight, 3, 3, "S");
+
+                let py = y + 6;
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.text("Spieler-Präferenzen:", margin + 3, py);
+                py += 6;
+
+                doc.setFontSize(9.5);
+                playerPrefs.forEach(pref => {
+                    if (!players[pref.player] || !players[pref.target]) return;
+                    const p = players[pref.player].name;
+                    const t = players[pref.target].name;
+                    const type = pref.type === "with" ? "mit" : "nicht mit";
+                    const color = pref.active ? [16, 185, 129] : [239, 68, 68];
+                    doc.setTextColor(...color);
+                    doc.text(`• ${p} ${type} ${t}`, margin + 5, py);
+                    py += 6;
+                });
+
+                y += playerPrefBoxHeight + 4;
+
+                const teamPrefBoxHeight = teamPrefCount * 6 + 12;
+                doc.setDrawColor(180);
+                doc.setFillColor(255, 255, 255);
+                doc.roundedRect(margin, y, boxWidth, teamPrefBoxHeight, 3, 3, "S");
+
+                py = y + 6;
+                doc.setFontSize(11);
+                doc.setTextColor(0, 0, 0);
+                doc.text("Team-Präferenzen:", margin + 3, py);
+                py += 6;
+
+                doc.setFontSize(9.5);
+                teamPrefs.forEach(pref => {
+                    const p = players[pref.player]?.name;
+                    const t = teamNames[pref.teamIndex];
+                    const type = pref.type === "in" ? "in" : "nicht in";
+                    const color = pref.active ? [16, 185, 129] : [239, 68, 68];
+                    doc.setTextColor(...color);
+                    doc.text(`• ${p} ${type} ${t}`, margin + 5, py);
+                    py += 6;
+                });
+
+                y += teamPrefBoxHeight + 2;
+            }
+
+            doc.save("ProShuffler_Rundenplan.pdf");
+        }
+
+        function hexToRgb(hex) {
+            hex = hex.replace("#", "");
+            if (hex.length === 3) hex = hex.split("").map(h => h + h).join("");
+            const bigint = parseInt(hex, 16);
+            return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+        }
+
+        function handlePDFExport() {
+            const includePrefs = document.getElementById("includePrefs").checked;
+            exportModernPDF(includePrefs);
+        }
+
+        function deleteRound(index) {
+            window.currentRounds.splice(index, 1);
+
+            const snapshot = {
+                rounds: JSON.parse(JSON.stringify(window.currentRounds)),
+                weights: { ...window.currentWeights },
+                players: JSON.parse(JSON.stringify(players)),
+                playerPrefs: JSON.parse(JSON.stringify(playerPrefs)),
+                teamPrefs: JSON.parse(JSON.stringify(teamPrefs)),
+                teamsActive: [...teamsActive]
+            };
+            shuffleHistory.push(snapshot);
+            if (shuffleHistory.length > MAX_HISTORY) shuffleHistory.shift();
+            shuffleHistoryIndex = shuffleHistory.length - 1;
+            updateHistoryButtons();
+
+            localStorage.setItem("proshufflerState", JSON.stringify({
+                players,
+                playerPrefs,
+                teamPrefs,
+                teamsActive,
+                poolWeights: window.currentWeights,
+                roundCount: document.getElementById("roundCount").value,
+                shuffleHistory,
+                shuffleHistoryIndex
+            }));
+
+            const container = document.getElementById("shuffleResults");
+            container.innerHTML = '';
+            window.currentRounds.forEach((teamsList, idx) => {
+                window.currentRounds.forEach((teamsList, idx) => {
+                    const roundWrapper = document.createElement("div");
+                    roundWrapper.classList.add("round-container");
+
+                    const roundTitle = document.createElement("h2");
+                    roundTitle.textContent = `Runde ${idx + 1}`;
+
+                    const refreshBtn = document.createElement("button");
+                    refreshBtn.textContent = "🔄";
+                    refreshBtn.title = "Nur diese Runde neu mischen";
+                    refreshBtn.onclick = () => reshuffleRound(idx);
+                    refreshBtn.className = "refresh-button";
+                    
+
+                    const delBtn = document.createElement("button");
+                    delBtn.textContent = "🗑️";
+                    delBtn.title = "Lösche diese Runde";
+                    delBtn.onclick = () => deleteRound(idx);
+                    delBtn.className = "refresh-button";
+
+                    roundTitle.appendChild(refreshBtn);
+                    roundTitle.appendChild(delBtn);
+                    roundWrapper.appendChild(roundTitle);
+                    roundWrapper.appendChild(roundTitle);
+                    const teamGrid = document.createElement("div");
+                    teamGrid.classList.add("teams-grid");
+                    roundWrapper.appendChild(teamGrid);
+
+                    renderDraggableTeams(teamsList, window.currentWeights, teamGrid);
+                    container.appendChild(roundWrapper);
+                });
+            });
+        }
+
+        let gotoPopupTarget = null;
+
+        function openGotoPopup(direction) {
+            gotoPopupTarget = direction;
+            document.getElementById("gotoInput").value = "";
+            document.getElementById("gotoPopup").style.display = "flex";
+        }
+
+        function closeGotoPopup() {
+            document.getElementById("gotoPopup").style.display = "none";
+            gotoPopupTarget = null;
+        }
+
+        function confirmGoto() {
+            const input = document.getElementById("gotoInput").value;
+            const index = parseInt(input, 10);
+            const total = shuffleHistory.length;
+            if (!isNaN(index) && index >= 1 && index <= total) {
+                shuffleHistoryIndex = index - 1;
+                loadHistory(shuffleHistoryIndex);
+                closeGotoPopup();
+            } else {
+                alert(`Bitte gib eine gültige Shuffle-Nr. zwischen 1 und ${total} ein.`);
+            }
+        }
+
+        ['historyBack', 'historyForward'].forEach(id => {
+            const btn = document.getElementById(id);
+            btn.addEventListener('contextmenu', e => {
+                e.preventDefault();
+                openGotoPopup(id === 'historyBack' ? 'back' : 'forward');
+            });
+        });
+
+        function copyMyId() {
+            const id = document.getElementById("myPeerId").textContent;
+            navigator.clipboard.writeText(id)
+                .then(() => showAlert("Peer-ID kopiert: " + id))
+                .catch(() => showAlert("Kopieren fehlgeschlagen."));
+        }
+
+        function genNewID() {
+            if (window.myPeer && window.myPeer.destroy) {
+                window.myPeer.destroy();
+            }
+
+            const newId = generateRandomId();
+            localStorage.setItem("myPeerId", newId);
+
+            initP2PConnection();
+        }
+
+        function regenerateMyId() {
+            showConfirmationPopup("Eine neue peer-ID?", genNewID, undefined)
+        }
+
+        document.getElementById("manualPeerId").value = localStorage.getItem("LastConnectedPeerID");
+
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 
 </html>
 
 <!-- 
-  Dieser Code ist unter der MIT-Lizenz lizenziert.
-  Weitere Informationen finden Sie in der beigefügten LICENSE-Datei.
+  Dieser Code ist unter einer benutzerdifinierten Lizenz lizenziert.
+  Weitere Informationen finden Sie in der beigefügten LICENSE-Datei oder unter https://github.com/Benny354912/Team-Shuffle-Web-Edition.
   © 2025 Benny354912
 -->
