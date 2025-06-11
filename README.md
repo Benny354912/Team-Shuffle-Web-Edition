@@ -1,15 +1,12 @@
 
 
-# Team Shuffler
+# Team Shuffle Web Edition
 
-Dierser Team Shuffler wurde für den eigenen gebrauch entwickelt. Für alle die etwas mit diesem Shuffler anfangen können, dürfen diesen Natürlich gerne nutzen! Eine kleine Vorschau und Demo findest du hier. MIT License gilt!
+Dierser Team Shuffler wurde für den eigenen gebrauch entwickelt. Für alle die etwas mit diesem Shuffler anfangen können, dürfen diesen Natürlich gerne nutzen! Wer eigene Ideen mit Itegrieren oder Fehler fixen möchte, kann dies gerne tuhen! Eine kleine Vorschau und Demo findest du unter diesem Text. Die **NEUE** [Benutzerdifinierte Lizenz](/LICENSE.md) ist zu beachten!
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)]()
+## Zum Testen & Nutzen
 
-## Live Demo
-
-Hier geht es zur Live [Demo](http://htmlpreview.github.io/?https://raw.githubusercontent.com/Benny354912/Team-Shuffle-Web-Edition/refs/heads/main/webversion.html).
-[DEMO](https://benny354912.github.io/Team-Shuffle-Web-Edition/webversion.html#5bb0b600-ef2c-4132-a07f-aefacc4ee3cd).
+[Hier](https://benny354912.github.io/Team-Shuffle-Web-Edition/webversion.html) kannst du es testen.
 
 ## Features
 
@@ -25,20 +22,22 @@ Hier geht es zur Live [Demo](http://htmlpreview.github.io/?https://raw.githubuse
     - [Spieler1] spielt in [Team]
     - [Spieler1] spielt nicht in [Team]
 - Mehrere Runden gleichzeitig Shufflen
-- Spieler aus Teams verschieben
-- Verlauf speicherung
+- Shuffle dem aktuellem Shuffle hinzufügen
+- Shuffle löschen und erneuern
+- Einzelne Spieler aus Teams verschieben (Drag and Drop)
+- Alle Spieler das Team wechseln (Drag and Drop)
+- Verlauf speicherung und anschauen
+- Als PDF / Runden Plan exportieren
+- P2P Verbindung um Shuffle von A nach B zu senden.
 
 ## Screenshots / Bilder
 
-![App Screenshot](https://camo.githubusercontent.com/0f2face56e0c6f26d04910206c929e9500f3fad8df705bed891e9ebc279f9170/68747470733a2f2f6c69747465722e636174626f782e6d6f652f686a6f7a71612e706e67)
-![App Screenshot](https://camo.githubusercontent.com/24c4f33963abc9fe0394df4a814f155d4dcfb2a2fab80006205feb684ed7743f/68747470733a2f2f6c69747465722e636174626f782e6d6f652f6639303230752e706e67)
-![App Screenshot](https://camo.githubusercontent.com/9d164bac75e75fa82c7bd26854b01134184b5f8da1b3da7e6075332cfecc084f/68747470733a2f2f6c69747465722e636174626f782e6d6f652f687534356e322e706e67)
-![App Screenshot](https://camo.githubusercontent.com/d9b2f83fb657ed6532a8a356190746d00bd964a42f9ca6ac50d1ac6ccbd18f72/68747470733a2f2f6c69747465722e636174626f782e6d6f652f6763653230622e706e67)
+![App Screenshot](/images/1.png)
+![App Screenshot](/images/2.png)
+![App Screenshot](/images/3.png)
+![App Screenshot](/images/4.png)
 
 ## Installation
 
-Einfach die webversion.html herunterladen und im Browser öffnen.
-## Authors
-
-- [@Benny354912](https://www.github.com/Benny354912)
-
+Keine Installation nötig, einfach [hier](https://benny354912.github.io/Team-Shuffle-Web-Edition/webversion.html) klicken.
+Falls du trotzdem was herunterladen möchtest, einfach unter [Releases](https://github.com/Benny354912/Team-Shuffle-Web-Edition/releases) gucken.
