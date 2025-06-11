@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.shuffler",
+      "sha256_cert_fingerprints": [
+        "6D:94:F0:E0:FD:C3:88:4E:B6:3D:0B:3E:8F:6F:B4:53:9D:F1:28:25:4D:B0:0B:D5:25:00:4B:1A:1B:51:C7:50"
+      ]
+    }
+  }
+]
