@@ -1053,6 +1053,26 @@
         .peer-connect-group button:hover {
             background-color: #1d4ed8;
         }
+
+        #manualPeerId.valid {
+            border: 2px solid #10b981 !important;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%2310b981" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 10-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.2rem;
+            padding-right: 2rem;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #manualPeerId.invalid {
+            border: 2px solid #ef4444 !important;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23ef4444" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 8.586l4.95-4.95a1 1 0 111.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10l-4.95-4.95a1 1 0 011.414-1.414L10 8.586z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.2rem;
+            padding-right: 2rem;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
     </style>
 </head>
 
@@ -1087,24 +1107,26 @@
             <button onclick="addPlayer()">Hinzufügen</button>
             <h2>Pool-Gewichtung</h2>
             <div class="pool-grid">
-                <div class="input-combo"><span class="input-label">P1</span><input type="number" id="weightP1"
-                        value="5" /></div>
-                <div class="input-combo"><span class="input-label">P2</span><input type="number" id="weightP2"
-                        value="3" /></div>
-                <div class="input-combo"><span class="input-label">P3</span><input type="number" id="weightP3"
-                        value="2" /></div>
-                <div class="input-combo"><span class="input-label">P4</span><input type="number" id="weightP4"
-                        value="1" /></div>
+                <div class="input-combo"><span class="input-label">P1</span><input type="number" id="weightP1" value="5"
+                        min="0" max="9" pattern="[0-9]" /></div>
+                <div class="input-combo"><span class="input-label">P2</span><input type="number" id="weightP2" value="3"
+                        min="0" max="9" pattern="[0-9]" /></div>
+                <div class="input-combo"><span class="input-label">P3</span><input type="number" id="weightP3" value="2"
+                        min="0" max="9" pattern="[0-9]" /></div>
+                <div class="input-combo"><span class="input-label">P4</span><input type="number" id="weightP4" value="1"
+                        min="0" max="9" pattern="[0-9]" /></div>
             </div>
             <h2>Präferenzen</h2>
             <div>
                 <label><input type="checkbox" id="usePoolWeights" checked> Pool-Gewichtung berücksichtigen</label><br>
                 <label><input type="checkbox" id="usePlayerPrefs" checked> Spieler-Präferenzen
                     berücksichtigen</label><br>
-                <label><input type="checkbox" id="useTeamPrefs" checked> Team-Präferenzen berücksichtigen</label>
+                <label><input type="checkbox" id="useTeamPrefs" checked> Team-Präferenzen berücksichtigen</label><br>
+                <label><input type="checkbox" id="preferEvenTeams" checked>Gleichmäßige Teamgrößen bevorzugen</label>
             </div>
             <h2>Export</h2>
             <label><input type="checkbox" id="includePrefs" />Alle Infos (inkl. Präferenzen)</label>
+
             <button onclick="handlePDFExport()">📄 PDF exportieren</button>
 
 
@@ -1193,7 +1215,8 @@
         </div>
     </div>
     <footer style="text-align: center; padding: 1em; font-size: 0.9em;">
-        &copy; 2025 Benny354912. Lizenziert unter der <a href="https://github.com/Benny354912/Team-Shuffle-Web-Edition/blob/b664cfb1c52ea8fe1d6139f8e9228ded896d269b/LICENSE.md"
+        &copy; 2025 Benny354912. Lizenziert unter der <a
+            href="https://github.com/Benny354912/Team-Shuffle-Web-Edition/blob/b664cfb1c52ea8fe1d6139f8e9228ded896d269b/LICENSE.md"
             target="_blank">Benutzerdifinierten Lizenz</a>.
     </footer>
     <div id="gotoPopup" style="display: none;" class="popup-overlay">
@@ -1222,7 +1245,7 @@
             { name: "Niklas", pool: 1 },
             { name: "Rafa", pool: 1 },
             { name: "Marica", pool: 1 },
-            { name: "Benny👑", pool: 2 },
+            { name: "Benny", pool: 2 },
             { name: "Martin", pool: 2 },
             { name: "Nino", pool: 2 },
             { name: "Damian", pool: 2 },
@@ -1414,10 +1437,13 @@
 
         function addPlayer() {
             let name = document.getElementById("newPlayerName").value.trim();
-            if (name.includes("👑")) return showAlert("Computer sagt Nein!")
-            if (arrogant.includes(name)) {
-                name = name + "👑"
+            const validName = /^[a-zA-Z0-9_-]{1,12}$/;
+
+            if (!validName.test(name)) {
+                showAlert("Ungültiger Name. Nur Buchstaben, Zahlen, Unterstriche und Bindestriche erlaubt (1–12 Zeichen).");
+                return;
             }
+
             const pool = parseInt(document.getElementById("newPlayerPool").value);
             if (name) {
                 players.push({ name, pool, active: true });
@@ -1674,6 +1700,14 @@
                 4: usePoolWeights ? (parseInt(document.getElementById("weightP4").value) || 1) : 0
             };
 
+            ["weightP1", "weightP2", "weightP3", "weightP4"].forEach(id => {
+                const val = document.getElementById(id).value;
+                if (!/^[0-9]$/.test(val)) {
+                    showAlert(`Ungültiges Gewicht in ${id}. Nur Ziffern (0–9) erlaubt.`);
+                    throw new Error("Ungültige Gewichtseingabe");
+                }
+            });
+
             const shuffleBtn = document.getElementById("shuffleButton");
             shuffleBtn.disabled = true;
             shuffleBtn.textContent = `⏳ Shuffling...`;
@@ -1729,6 +1763,12 @@
                 );
                 const avg = totals.reduce((a, b) => a + b, 0) / totals.length;
                 return totals.reduce((sum, v) => sum + Math.pow(v - avg, 2), 0) / totals.length;
+            }
+
+            function teamSizeVariance(teamMap) {
+                const sizes = Object.values(teamMap).map(players => players.length);
+                const avg = sizes.reduce((a, b) => a + b, 0) / sizes.length;
+                return sizes.reduce((sum, s) => sum + Math.pow(s - avg, 2), 0) / sizes.length;
             }
 
             function uniquePairScore(teamMap) {
@@ -1792,10 +1832,18 @@
                 }
 
                 let best = validSolutions[0];
-                let bestScore = uniquePairScore(best) + calculateDeviation(best);
+                const preferEvenTeams = document.getElementById("preferEvenTeams").checked;
+                function totalScore(teamMap) {
+                    let score = uniquePairScore(teamMap) + calculateDeviation(teamMap);
+                    if (preferEvenTeams) {
+                        score += teamSizeVariance(teamMap); 
+                    }
+                    return score;
+                }
+                let bestScore = totalScore(best);
 
                 for (const solution of validSolutions) {
-                    const score = uniquePairScore(solution) + calculateDeviation(solution);
+                    const score = totalScore(solution);
                     if (score < bestScore) {
                         best = solution;
                         bestScore = score;
@@ -2362,6 +2410,7 @@
             const usePoolWeights = document.getElementById("usePoolWeights").checked;
             const usePlayerPrefs = document.getElementById("usePlayerPrefs").checked;
             const useTeamPrefs = document.getElementById("useTeamPrefs").checked;
+            const preferEvenTeams = document.getElementById("preferEvenTeams").checked;
             const MAX_ATTEMPTS = 50000;
             const MAX_RETRIES = 3;
 
@@ -2381,6 +2430,20 @@
 
             const otherRounds = window.currentRounds.filter((_, i) => i !== roundIndex);
             const pairCounter = {};
+
+            function teamSizeVariance(teamMap) {
+                const sizes = Object.values(teamMap).map(players => players.length);
+                const avg = sizes.reduce((a, b) => a + b, 0) / sizes.length;
+                return sizes.reduce((sum, s) => sum + Math.pow(s - avg, 2), 0) / sizes.length;
+            }
+
+            function totalScore(teamMap) {
+                let score = uniquePairScore(teamMap) + calculateDeviation(teamMap);
+                if (preferEvenTeams) {
+                    score += teamSizeVariance(teamMap);
+                }
+                return score;
+            }
 
             for (const round of otherRounds) {
                 for (const team of round) {
@@ -2480,9 +2543,9 @@
             }
 
             let best = validSolutions[0];
-            let bestScore = uniquePairScore(best) + calculateDeviation(best);
+            let bestScore = totalScore(best);
             for (const solution of validSolutions) {
-                const score = uniquePairScore(solution) + calculateDeviation(solution);
+                const score = totalScore(solution);
                 if (score < bestScore) {
                     best = solution;
                     bestScore = score;
@@ -2523,11 +2586,127 @@
         let conn;
 
         function showCustomPopup(text) {
-            showAlert(text); 
+            showAlert(text);
+        }
+
+        function generateCheckBlock(baseData) {
+            const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            const hash = [...baseData].reduce((acc, c) => acc * 31 + c.charCodeAt(0), 7) % (charset.length ** 4);
+
+            let block = '';
+            let value = hash;
+            for (let i = 0; i < 4; i++) {
+                block = charset[value % charset.length] + block;
+                value = Math.floor(value / charset.length);
+            }
+            return block;
         }
 
         function generateRandomId() {
-            return "ps-" + Math.random().toString(36).substr(2, 9);
+            const PREFIX = 'PSW';
+            const BLOCKS = 3;
+            const CHARS_PER_BLOCK = 4;
+            const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+            function randomBlock() {
+                let result = '';
+                for (let i = 0; i < CHARS_PER_BLOCK; i++) {
+                    result += charset.charAt(Math.floor(Math.random() * charset.length));
+                }
+                return result;
+            }
+
+            const blocks = [];
+            for (let i = 0; i < BLOCKS; i++) {
+                blocks.push(randomBlock());
+            }
+
+            const baseData = blocks.join('');
+            const checkBlock = generateCheckBlock(baseData);
+            return `PSW-${blocks.join('-')}-${checkBlock}`;
+        }
+
+        function isValidStrictStructuredPeerId(id) {
+            const parts = id.trim().split('-');
+            if (parts.length !== 5 || parts[0] !== 'PSW') return false;
+
+            const pattern = /^[A-HJ-NP-Z2-9]{4}$/;
+            if (!pattern.test(parts[1]) || !pattern.test(parts[2]) || !pattern.test(parts[3]) || !pattern.test(parts[4])) {
+                return false;
+            }
+
+            const baseData = parts[1] + parts[2] + parts[3];
+            const expectedCheck = generateCheckBlock(baseData);
+            return parts[4] === expectedCheck;
+        }
+
+        function isValidStructuredPeerIdWithChecksum(id) {
+            const parts = id.trim().split('-');
+            if (parts.length !== 5 || parts[0] !== 'PSW') return false;
+
+            const pattern = /^[A-HJ-NP-Z2-9]{4}$/;
+            if (!pattern.test(parts[1]) || !pattern.test(parts[2]) || !pattern.test(parts[3]) || !pattern.test(parts[4])) {
+                return false;
+            }
+
+            const baseData = parts[1] + parts[2] + parts[3];
+            const expectedCheck = generateCheckBlock(baseData);
+            return parts[4] === expectedCheck;
+        }
+
+        function completeLastBlockFromId(baseId) {
+            const basePattern = /^PSW-([A-HJ-NP-Z2-9]{4}-){3}$/;
+            if (!basePattern.test(baseId)) return null;
+
+            const parts = baseId.split('-').slice(1, 4);
+            const data = parts.join('');
+            const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            const checksumChar = charset[calculateChecksum(data) % charset.length];
+
+            const randomChars = () => {
+                let s = '';
+                for (let i = 0; i < 3; i++) {
+                    s += charset[Math.floor(Math.random() * charset.length)];
+                }
+                return s;
+            };
+
+            return randomChars() + checksumChar;
+        }
+
+        const peerInput = document.getElementById("manualPeerId");
+        manualPeerId.addEventListener("input", () => {
+            let raw = peerInput.value.toUpperCase();
+
+            raw = raw.replace(/[^A-HJ-NP-Z2-9]/g, '');
+
+            raw = raw.replace(/^PSW/, '');
+            raw = raw.replace(/PSW/g, '');
+
+            let val = 'PSW-' + raw;
+
+            let dataPart = val.slice(4).replace(/-/g, '');
+            let chunks = dataPart.match(/.{1,4}/g) || [];
+            if (chunks.length > 4) chunks = chunks.slice(0, 4);
+
+            if (chunks.length === 3 && chunks.every(c => c.length === 4)) {
+                const baseData = chunks.join('');
+                chunks.push(generateCheckBlock(baseData));
+            }
+
+            peerInput.value = 'PSW-' + chunks.join('-');
+
+            peerInput.classList.remove("valid", "invalid");
+            if (chunks.length === 4 && isValidStrictStructuredPeerId(peerInput.value)) {
+                peerInput.classList.add("valid");
+                connectToPeerManual();
+            } else {
+                peerInput.classList.add("invalid");
+            }
+        });
+
+        function calculateChecksum(data) {
+            return [...data].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
         }
 
         function generateQRCode(text) {
@@ -2570,6 +2749,10 @@
 
             peer.on('connection', (incoming) => {
                 conn = incoming;
+                if (!isValidStructuredPeerIdWithChecksum(conn.peer)) {
+                    showAlert("Ungültige ID. Bitte gültige ProShuffler-ID im Format PSW-XXXX-XXXX-XXXX-XXX✓ eingeben.");
+                    return;
+                }
                 conn.on('open', () => {
                     updatePeerStatus(`✅ Verbunden mit: ${conn.peer}`);
                     conn.send("Willkommen bei ProShuffler!");
@@ -2604,7 +2787,7 @@
                 showAlert("⚠️ Verbindung zum Peer verloren. Versuche erneut zu Verbinden...");
 
                 try {
-                    peer.reconnect(); // PeerJS reconnect automatisch mit letzter ID
+                    peer.reconnect(); 
                 } catch (e) {
                     showAlert("Reconnect fehlgeschlagen: " + e);
                 }
@@ -2618,6 +2801,10 @@
 
         function connectToPeer(peerId) {
             if (!peerId) return;
+            if (!isValidStructuredPeerIdWithChecksum(peerId)) {
+                showAlert("Ungültige ID. Bitte gültige ProShuffler-ID im Format PSW-XXXX-XXXX-XXXX-XXX✓ eingeben.");
+                return;
+            }
             conn = peer.connect(peerId);
             conn.on('open', () => {
                 updatePeerStatus(`✅ Verbunden mit: ${peerId}`);
@@ -2703,6 +2890,10 @@
         function handleQrScan(qrCodeMessage) {
             if (qrCodeMessage.startsWith("http") && qrCodeMessage.includes("#peerid-")) {
                 const peerId = qrCodeMessage.split("#peerid-")[1].trim();
+                if (!isValidStructuredPeerIdWithChecksum(peerId)) {
+                    showAlert("Ungültige ID. Bitte gültige ProShuffler-ID im Format PSW-XXXX-XXXX-XXXX-XXX✓ eingeben.");
+                    return;
+                }
                 document.getElementById("manualPeerId").value = peerId;
                 connectToPeer(peerId);
                 html5QrScanner.stop().then(() => {
@@ -3114,7 +3305,7 @@
                     refreshBtn.title = "Nur diese Runde neu mischen";
                     refreshBtn.onclick = () => reshuffleRound(idx);
                     refreshBtn.className = "refresh-button";
-                    
+
 
                     const delBtn = document.createElement("button");
                     delBtn.textContent = "🗑️";
